@@ -51,7 +51,7 @@ class Card(Base):
     card_type: Mapped[CardType] = mapped_column(Enum(CardType))
     talent: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     edition: Mapped[str] = mapped_column(String(50))
-    card_number: Mapped[str] = mapped_column(String(20), unique=True)
+    card_number: Mapped[str] = mapped_column(String(20))  #, unique=True)
     illustrator: Mapped[str] = mapped_column(String(100))
     image_path: Mapped[str] = mapped_column(String(255))
 
