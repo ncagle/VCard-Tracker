@@ -49,7 +49,7 @@ class Card(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
     card_type: Mapped[CardType] = mapped_column(Enum(CardType))
-    talent: Mapped[str] = mapped_column(String(500))
+    talent: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     edition: Mapped[str] = mapped_column(String(50))
     card_number: Mapped[str] = mapped_column(String(20), unique=True)
     illustrator: Mapped[str] = mapped_column(String(100))
