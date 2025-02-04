@@ -36,9 +36,20 @@ from typing import Dict, Generator, Any
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy_utils import (
+    database_exists,
+    create_database,
+    drop_database,
+)
 
-from vcard_tracker.database.schema import Base, Card
+from vcard_tracker.database.schema import (
+    Base,
+    Card,
+    CharacterDetails,
+    SupportDetails,
+    ElementalDetails,
+    CollectionStatus,
+)
 from vcard_tracker.models.base import Element, CardType, Acquisition
 from vcard_tracker.database.manager import DatabaseManager
 
@@ -189,11 +200,11 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
     with Session(db_manager.engine) as session:
         # Load character cards
         for variant_name, card_data in sample_cards["characters"].items():
-            card = Base(
+            card = Card(
                 name=card_data["name"],
                 card_type=CardType[card_data["card_type"]],
                 talent=card_data["talent"],
-                edition="Base",
+                edition="First",
                 card_number=card_data["card_number"],
                 illustrator=card_data["illustrator"],
                 image_path=f"character/{card_data['card_number']}.png"
@@ -217,11 +228,11 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
 
         # Load support cards
         for variant_name, card_data in sample_cards["support"].items():
-            card = Base(
+            card = Card(
                 name=card_data["name"],
                 card_type=CardType[card_data["card_type"]],
                 talent=card_data["talent"],
-                edition="Base",
+                edition="First",
                 card_number=card_data["card_number"],
                 illustrator=card_data["illustrator"],
                 image_path=f"support/{card_data['card_number']}.png"
@@ -235,11 +246,11 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
 
         # Load guardian cards
         for variant_name, card_data in sample_cards["guardians"].items():
-            card = Base(
+            card = Card(
                 name=card_data["name"],
                 card_type=CardType[card_data["card_type"]],
                 talent=card_data["talent"],
-                edition="Base",
+                edition="First",
                 card_number=card_data["card_number"],
                 illustrator=card_data["illustrator"],
                 image_path=f"guardian/{card_data['card_number']}.png"
@@ -253,11 +264,11 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
 
         # Load shield cards
         for variant_name, card_data in sample_cards["shields"].items():
-            card = Base(
+            card = Card(
                 name=card_data["name"],
                 card_type=CardType[card_data["card_type"]],
                 talent=card_data["talent"],
-                edition="Base",
+                edition="First",
                 card_number=card_data["card_number"],
                 illustrator=card_data["illustrator"],
                 image_path=f"shield/{card_data['card_number']}.png"
@@ -271,11 +282,11 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
 
         # Load edge cases
         for variant_name, card_data in sample_cards["edge_cases"].items():
-            card = Base(
+            card = Card(
                 name=card_data["name"],
                 card_type=CardType[card_data["card_type"]],
                 talent=card_data["talent"],
-                edition="Base",
+                edition="First",
                 card_number=card_data["card_number"],
                 illustrator=card_data["illustrator"],
                 image_path=f"character/{card_data['card_number']}.png"
