@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-tests.__init__.py - VCard-Tracker
+tests.test_models.py - VCard-Tracker
 Created by NCagle
 2025-02-03
       _
@@ -8,6 +8,28 @@ Created by NCagle
 ~~~⋱___)~~~
 
 Tests for card model creation and validation.
+
+✅ Basic card creation for each type
+    - Character cards (normal, holo, level variations)
+    - Support cards
+    - Guardian cards
+    - Shield cards
+
+✅ Validation rules
+    - Mascot power level = 1
+    - Regular character power levels 8-10
+    - Level 10 must be holo
+    - Box toppers must have null attributes
+
+✅ Box topper null attributes
+    - Verification that gameplay stats are null
+    - Error when trying to set attributes
+
+✅ Character card variants
+    - Level progression (8→9→10)
+    - Regular vs holo variants
+    - Special text values
+    - Promo cards
 """
 import pytest
 from vcard_tracker.models.base import Element, CardType, BaseCard
@@ -230,7 +252,7 @@ def test_create_misprint_character_card():
         is_misprint=True
     )
 
-    assert card.name == "FREAM"
+    assert card.name == "Misprint FREAM"
     assert card.power_level == 8
     assert card.element == Element.PLATINUM
     assert card.age == "69"
@@ -238,3 +260,246 @@ def test_create_misprint_character_card():
     assert not card.is_mascott
     assert card.is_playable
     assert card.is_misprint
+
+
+"""
+Tests for character card variations and relationships
+"""
+def test_character_level_progression():
+    """Test character level progression from 8 to 10"""
+    # Level 8 card
+    level_8 = CharacterCard(
+        name="FREAM",
+        card_type=CardType.CHARACTER,
+        talent="Delayed Reaction: If you lose this round, your next Power Level card gets +1 power.",
+        edition="Base",
+        card_number="106",
+        illustrator="Louriii",
+        power_level=8,
+        element=Element.PLATINUM,
+        age="Lava Lamp",
+        height="Lava Lamp",
+        weight="Lava Lamp",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS
+    )
+    assert level_8.power_level == 8
+    assert not level_8.is_holo
+
+    # Level 9 holo card
+    level_9 = CharacterCard(
+        name="FREAM",
+        card_type=CardType.CHARACTER,
+        talent="LAVA LAMP",
+        edition="Base",
+        card_number="107",
+        illustrator="Louriii",
+        power_level=9,
+        element=Element.PLATINUM,
+        age="Lava Lamp",
+        height="Lava Lamp",
+        weight="Lava Lamp",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS,
+        is_holo=True
+    )
+    assert level_9.power_level == 9
+    assert level_9.is_holo
+
+    # Level 10 card (must be holo)
+    level_10 = CharacterCard(
+        name="FREAM",
+        card_type=CardType.CHARACTER,
+        talent="AhhAAhhAHhAHAhhAHHAHHAHhAAHAHAaa",
+        edition="Base",
+        card_number="108",
+        illustrator="Louriii",
+        power_level=10,
+        element=Element.PLATINUM,
+        age="(¬_¬)",
+        height="Tall for their height",
+        weight="Rude!",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS,
+        is_holo=True
+    )
+    assert level_10.power_level == 10
+    assert level_10.is_holo
+
+
+def test_invalid_level_10_non_holo():
+    """Test that level 10 cards must be holographic"""
+    with pytest.raises(ValueError, match="Level 10 cards must be holographic"):
+        CharacterCard(
+            name="FREAM",
+            card_type=CardType.CHARACTER,
+            talent="Test",
+            edition="Base",
+            card_number="TEST-001",
+            illustrator="Louriii",
+            power_level=10,
+            element=Element.PLATINUM,
+            age="Test",
+            height="Test",
+            weight="Test",
+            elemental_strength=Element.ELECTRIC,
+            elemental_weakness=Element.GRASS,
+            is_holo=False  # This should raise an error for level 10
+        )
+
+
+def test_character_holo_variants():
+    """Test regular and holo variants of the same character card"""
+    # Regular version
+    regular = CharacterCard(
+        name="FREAM",
+        card_type=CardType.CHARACTER,
+        talent="Delayed Reaction: If you lose this round, your next Power Level card gets +1 power.",
+        edition="Base",
+        card_number="106",
+        illustrator="Louriii",
+        power_level=8,
+        element=Element.PLATINUM,
+        age="Lava Lamp",
+        height="Lava Lamp",
+        weight="Lava Lamp",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS,
+        is_holo=False
+    )
+
+    # Holo version - same card but holographic
+    holo = CharacterCard(
+        name="FREAM",
+        card_type=CardType.CHARACTER,
+        talent="Delayed Reaction: If you lose this round, your next Power Level card gets +1 power.",
+        edition="Base",
+        card_number="107",
+        illustrator="Louriii",
+        power_level=8,
+        element=Element.PLATINUM,
+        age="Lava Lamp",
+        height="Lava Lamp",
+        weight="Lava Lamp",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS,
+        is_holo=True
+    )
+
+    # Check that gameplay attributes are identical
+    assert regular.power_level == holo.power_level
+    assert regular.element == holo.element
+    assert regular.elemental_strength == holo.elemental_strength
+    assert regular.elemental_weakness == holo.elemental_weakness
+
+
+def test_promo_character():
+    """Test creating a promotional character card"""
+    promo = CharacterCard(
+        name="FREAM",
+        card_type=CardType.CHARACTER,
+        talent="Special Event Talent",
+        edition="Event 2024",
+        card_number="PR-001",
+        illustrator="Louriii",
+        power_level=8,
+        element=Element.PLATINUM,
+        age="Lava Lamp",
+        height="Lava Lamp",
+        weight="Lava Lamp",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS,
+        is_promo=True,
+        is_holo=True  # Promos are always holo
+    )
+    
+    assert promo.is_promo
+    assert promo.is_holo  # Verify promo is holographic
+
+
+def test_special_text_values():
+    """Test characters with special/unusual text values"""
+    card = CharacterCard(
+        name="FREAM",
+        card_type=CardType.CHARACTER,
+        talent="AhhAAhhAHhAHAhhAHHAHHAHhAAHAHAaa",
+        edition="Base",
+        card_number="108",
+        illustrator="Louriii",
+        power_level=10,
+        element=Element.PLATINUM,
+        age="(¬_¬)",
+        height="Tall for their height",
+        weight="Rude!",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS,
+        is_holo=True
+    )
+    
+    # Verify special text values are preserved
+    assert card.age == "(¬_¬)"
+    assert card.height == "Tall for their height"
+    assert card.weight == "Rude!"
+
+
+def test_mascot_variant():
+    """Test mascot card variant"""
+    mascot = CharacterCard(
+        name="SPIKE",
+        card_type=CardType.CHARACTER,
+        talent="+1 to your Power Level card. +2 to your Platinum type Power Level Card. +3 to your Fream VTuber Power Level card.",
+        edition="Base",
+        card_number="162",
+        illustrator="Louriii",
+        power_level=1,
+        element=Element.PLATINUM,
+        age="Spaghet",
+        height="Smol",
+        weight="Sandwich",
+        elemental_strength=Element.ELECTRIC,
+        elemental_weakness=Element.GRASS,
+        is_mascott=True
+    )
+    
+    assert mascot.power_level == 1
+    assert mascot.is_mascott
+    assert mascot.is_playable
+
+
+def test_invalid_power_levels():
+    """Test invalid power level combinations"""
+    # Test power level 2-7 (invalid for any character card)
+    with pytest.raises(ValueError, match="Regular character cards must have power level 8, 9, or 10"):
+        CharacterCard(
+            name="Invalid Card",
+            card_type=CardType.CHARACTER,
+            talent="Test",
+            edition="Base",
+            card_number="TEST-001",
+            illustrator="Test Artist",
+            power_level=5,  # Invalid power level
+            element=Element.PLATINUM,
+            age="Test",
+            height="Test",
+            weight="Test",
+            elemental_strength=Element.ELECTRIC,
+            elemental_weakness=Element.GRASS
+        )
+    
+    # Test power level > 10
+    with pytest.raises(ValueError, match="Regular character cards must have power level 8, 9, or 10"):
+        CharacterCard(
+            name="Invalid Card",
+            card_type=CardType.CHARACTER,
+            talent="Test",
+            edition="Base",
+            card_number="TEST-002",
+            illustrator="Test Artist",
+            power_level=11,  # Invalid power level
+            element=Element.PLATINUM,
+            age="Test",
+            height="Test",
+            weight="Test",
+            elemental_strength=Element.ELECTRIC,
+            elemental_weakness=Element.GRASS
+        )
