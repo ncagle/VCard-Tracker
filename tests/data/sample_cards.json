@@ -1,0 +1,242 @@
+{
+    "characters": {
+      "normal": {
+        "name": "FREAM",
+        "card_type": "CHARACTER",
+        "talent": "Delayed Reaction: If you lose this round, your next Power Level card gets +1 power.",
+        "card_number": "106",
+        "illustrator": "Louriii",
+        "power_level": 8,
+        "element": "PLATINUM",
+        "age": "Lava Lamp",
+        "height": "Lava Lamp",
+        "weight": "Lava Lamp",
+        "elemental_strength": "ELECTRIC",
+        "elemental_weakness": "GRASS",
+        "is_box_topper": false,
+        "is_mascott": false,
+        "is_holo": false
+      },
+      "holo_variant": {
+        "name": "FREAM",
+        "card_type": "CHARACTER",
+        "talent": "LAVA LAMP",
+        "card_number": "107",
+        "illustrator": "Louriii",
+        "power_level": 9,
+        "element": "PLATINUM",
+        "age": "Lava Lamp",
+        "height": "Lava Lamp",
+        "weight": "Lava Lamp",
+        "elemental_strength": "ELECTRIC",
+        "elemental_weakness": "GRASS",
+        "is_box_topper": false,
+        "is_mascott": false,
+        "is_holo": true
+      },
+      "mascott": {
+        "name": "SPIKE",
+        "card_type": "CHARACTER",
+        "talent": "+1 to your Power Level card. +2 to your Platinum type Power Level Card. +3 to your Fream VTuber Power Level card.",
+        "card_number": "162",
+        "illustrator": "Louriii",
+        "power_level": 1,
+        "element": "PLATINUM",
+        "age": "Spaghet",
+        "height": "Smol",
+        "weight": "Sandwich",
+        "elemental_strength": "ELECTRIC",
+        "elemental_weakness": "GRASS",
+        "is_box_topper": false,
+        "is_mascott": true,
+        "is_holo": false
+      },
+      "level_10": {
+        "name": "FREAM",
+        "card_type": "CHARACTER",
+        "talent": "AhhAAhhAHhAHAhhAHHAHHAHhAAHAHAaa",
+        "card_number": "108",
+        "illustrator": "Louriii",
+        "power_level": 10,
+        "element": "PLATINUM",
+        "age": "(¬_¬)",
+        "height": "Tall for their height",
+        "weight": "Rude!",
+        "elemental_strength": "ELECTRIC",
+        "elemental_weakness": "GRASS",
+        "is_box_topper": false,
+        "is_mascott": false,
+        "is_holo": true
+      },
+      "box_topper": {
+        "name": "FREAM",
+        "card_type": "CHARACTER",
+        "talent": null,
+        "card_number": "BT-001",
+        "illustrator": "Louriii",
+        "power_level": null,
+        "element": "PLATINUM",
+        "age": null,
+        "height": null,
+        "weight": null,
+        "elemental_strength": null,
+        "elemental_weakness": null,
+        "is_box_topper": true,
+        "is_mascott": false,
+        "is_holo": true
+      }
+    },
+    "support": {
+      "normal": {
+        "name": "Healing Mage",
+        "card_type": "SUPPORT",
+        "talent": "Restore 30 HP",
+        "card_number": "001",
+        "illustrator": "John Doe",
+        "is_holo": false,
+        "is_secret_rare": false
+      },
+      "holo": {
+        "name": "Healing Mage",
+        "card_type": "SUPPORT",
+        "talent": "Restore 30 HP",
+        "card_number": "002",
+        "illustrator": "John Doe",
+        "is_holo": true,
+        "is_secret_rare": false
+      },
+      "secret_rare": {
+        "name": "Healing Mage",
+        "card_type": "SUPPORT",
+        "talent": "Restore 30 HP",
+        "card_number": "003",
+        "illustrator": "John Doe",
+        "is_holo": true,
+        "is_secret_rare": true
+      }
+    },
+    "guardians": {
+      "fire": {
+        "name": "Fire Guardian",
+        "card_type": "GUARDIAN",
+        "talent": "Fire protection",
+        "card_number": "001",
+        "illustrator": "Mark Wilson",
+        "element": "FIRE",
+        "is_holo": false
+      },
+      "water": {
+        "name": "Water Guardian",
+        "card_type": "GUARDIAN",
+        "talent": "Water protection",
+        "card_number": "002",
+        "illustrator": "Mark Wilson",
+        "element": "WATER",
+        "is_holo": false
+      }
+    },
+    "shields": {
+      "fire": {
+        "name": "Fire Shield",
+        "card_type": "SHIELD",
+        "talent": "Fire defense",
+        "card_number": "001",
+        "illustrator": "Emma Brown",
+        "element": "FIRE",
+        "is_holo": false
+      },
+      "water": {
+        "name": "Water Shield",
+        "card_type": "SHIELD",
+        "talent": "Water defense",
+        "card_number": "002",
+        "illustrator": "Emma Brown",
+        "element": "WATER",
+        "is_holo": false
+      }
+    },
+    "promo": {
+      "character": {
+        "name": "Event Knight",
+        "card_type": "CHARACTER",
+        "talent": "Special event version",
+        "card_number": "001",
+        "illustrator": "Guest Artist",
+        "power_level": 8,
+        "element": "PLATINUM",
+        "age": 30,
+        "height": 175.0,
+        "weight": 70.0,
+        "elemental_strength": "ELECTRIC",
+        "elemental_weakness": "FIRE",
+        "is_box_topper": false,
+        "is_mascott": false,
+        "is_holo": true,
+        "is_promo": true
+      },
+      "support": {
+        "name": "Event Healer",
+        "card_type": "SUPPORT",
+        "talent": "Special healing",
+        "card_number": "002",
+        "illustrator": "Guest Artist",
+        "is_holo": true,
+        "is_secret_rare": false,
+        "is_promo": true
+      }
+    },
+    "edge_cases": {
+      "misprint": {
+        "name": "Misprint FREAM",
+        "card_type": "CHARACTER",
+        "talent": "Professional streamer",
+        "card_number": "MP-107",
+        "illustrator": "Louriii",
+        "power_level": 8,
+        "element": "PLATINUM",
+        "age": "69",
+        "height": "6ft 9in",
+        "weight": "BEANS",
+        "elemental_strength": "ELECTRIC",
+        "elemental_weakness": "GRASS",
+        "is_box_topper": false,
+        "is_mascott": false,
+        "is_holo": false,
+        "is_misprint": true
+      },
+      "max_stats": {
+        "name": "Max Stats",
+        "card_type": "CHARACTER",
+        "talent": "Testing maximum values",
+        "card_number": "998",
+        "illustrator": "Test Artist",
+        "power_level": 10,
+        "element": "PLATINUM",
+        "age": 999,
+        "height": 999.9,
+        "weight": 999.9,
+        "elemental_strength": "ELECTRIC",
+        "elemental_weakness": "WATER",
+        "is_box_topper": false,
+        "is_mascott": false,
+        "is_holo": true
+      },
+      "unknown_stats": {
+        "name": "Mystery",
+        "card_type": "CHARACTER",
+        "talent": "Testing unknown values",
+        "card_number": "999",
+        "illustrator": "Test Artist",
+        "power_level": 8,
+        "element": "FIRE",
+        "age": "???",
+        "height": "Unknown",
+        "weight": "???",
+        "elemental_strength": "GRASS",
+        "elemental_weakness": "WATER",
+        "is_box_topper": false,
+        "is_mascott": false,
+        "is_holo": false
+      }
+    }
+  }
