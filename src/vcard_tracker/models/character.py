@@ -104,3 +104,14 @@ class CharacterCard(BaseCard):
                 raise ValueError("Mascot cards must have power level 1")
             elif not self.is_mascott and self.power_level not in (8, 9, 10):
                 raise ValueError("Regular character cards must have power level 8, 9, or 10")
+
+    @property
+    def is_playable(self) -> bool:
+        """
+        Whether the card can be used in gameplay.
+        Box toppers are not playable.
+
+        Returns:
+            bool: True if card can be used in gameplay
+        """
+        return not self.is_box_topper

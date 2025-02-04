@@ -65,3 +65,14 @@ class BaseCard:
     acquisition: Optional[Acquisition] = None
     date_acquired: Optional[datetime] = None
     notes: str = ""
+
+    @property
+    def is_playable(self) -> bool:
+        """
+        Whether the card can be used in gameplay.
+        Box toppers are not playable.
+
+        Returns:
+            bool: True if card can be used in gameplay
+        """
+        return True
