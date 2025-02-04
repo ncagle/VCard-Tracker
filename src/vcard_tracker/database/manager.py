@@ -58,6 +58,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import (
     Session,
+    joinedload,
     DeclarativeBase,
     Mapped,
     mapped_column,
@@ -129,8 +130,18 @@ class DatabaseManager:
             Card: Card object if found, None otherwise
         """
         with Session(self.engine) as session:
+            # return session.scalar(
+            #     select(Card).where(Card.card_number == card_number)
+            # )
             return session.scalar(
-                select(Card).where(Card.card_number == card_number)
+                select(Card)
+                .options(
+                    joinedload(Card.character_details),
+                    joinedload(Card.support_details),
+                    joinedload(Card.elemental_details),
+                    joinedload(Card.collection_status)
+                )
+                .where(Card.card_number == card_number)
             )
 
 
@@ -150,9 +161,21 @@ class DatabaseManager:
             List[Card]: List of matching cards
         """
         with Session(self.engine) as session:
+            # return list(
+            #     session.scalars(
+            #         select(Card).where(Card.card_type == card_type)
+            #     )
+            # )
             return list(
                 session.scalars(
-                    select(Card).where(Card.card_type == card_type)
+                    select(Card)
+                    .options(
+                        joinedload(Card.character_details),
+                        joinedload(Card.support_details),
+                        joinedload(Card.elemental_details),
+                        joinedload(Card.collection_status)
+                    )
+                    .where(Card.card_type == card_type)
                 )
             )
 
@@ -179,18 +202,55 @@ class DatabaseManager:
             Set include_support=True to include them in results.
         """
         with Session(self.engine) as session:
+            # # Build base query
+            # stmt = select(Card).where(
+            #     or_(
+            #         # Character cards
+            #         and_(
+            #             Card.card_type == CardType.CHARACTER,
+            #             Card.character_details.has(element=element)
+            #         ),
+            #         # Guardian/Shield cards
+            #         and_(
+            #             Card.card_type.in_([CardType.GUARDIAN, CardType.SHIELD]),
+            #             Card.elemental_details.has(element=element)
+            #         )
+            #     )
+            # )
+
+            # # Include support cards if requested
+            # if include_support:
+            #     stmt = stmt.where(
+            #         or_(
+            #             Card.card_type == CardType.SUPPORT,
+            #             Card.card_type != CardType.SUPPORT
+            #         )
+            #     )
+            # else:
+            #     stmt = stmt.where(Card.card_type != CardType.SUPPORT)
+
+            # return list(session.scalars(stmt))
             # Build base query
-            stmt = select(Card).where(
-                or_(
-                    # Character cards
-                    and_(
-                        Card.card_type == CardType.CHARACTER,
-                        Card.character_details.has(element=element)
-                    ),
-                    # Guardian/Shield cards
-                    and_(
-                        Card.card_type.in_([CardType.GUARDIAN, CardType.SHIELD]),
-                        Card.elemental_details.has(element=element)
+            stmt = (
+                select(Card)
+                .options(
+                    joinedload(Card.character_details),
+                    joinedload(Card.support_details),
+                    joinedload(Card.elemental_details),
+                    joinedload(Card.collection_status)
+                )
+                .where(
+                    or_(
+                        # Character cards
+                        and_(
+                            Card.card_type == CardType.CHARACTER,
+                            Card.character_details.has(element=element)
+                        ),
+                        # Guardian/Shield cards
+                        and_(
+                            Card.card_type.in_([CardType.GUARDIAN, CardType.SHIELD]),
+                            Card.elemental_details.has(element=element)
+                        )
                     )
                 )
             )
@@ -233,7 +293,16 @@ class DatabaseManager:
             if exact_match:
                 stmt = select(Card).where(Card.name == name)
             else:
-                stmt = select(Card).where(Card.name.ilike(f"%{name}%"))
+                stmt = select(Card).where(
+                    Card.name.ilike(f"%{name}%")
+                )
+
+            stmt = stmt.options(
+                joinedload(Card.character_details),
+                joinedload(Card.support_details),
+                joinedload(Card.elemental_details),
+                joinedload(Card.collection_status)
+            )
 
             return list(session.scalars(stmt))
 
@@ -260,10 +329,30 @@ class DatabaseManager:
             Box topper included by default but can be excluded.
         """
         with Session(self.engine) as session:
-            stmt = select(Card).where(
-                and_(
-                    Card.name == character_name,
-                    Card.card_type == CardType.CHARACTER
+            # stmt = select(Card).where(
+            #     and_(
+            #         Card.name == character_name,
+            #         Card.card_type == CardType.CHARACTER
+            #     )
+            # )
+
+            # if not include_box_topper:
+            #     stmt = stmt.join(Card.character_details).where(
+            #         CharacterDetails.is_box_topper == False
+            #     )
+
+            # return list(session.scalars(stmt))
+            stmt = (
+                select(Card)
+                .options(
+                    joinedload(Card.character_details),
+                    joinedload(Card.collection_status)
+                )
+                .where(
+                    and_(
+                        Card.name == character_name,
+                        Card.card_type == CardType.CHARACTER
+                    )
                 )
             )
 
@@ -298,7 +387,34 @@ class DatabaseManager:
             to include other card types in results.
         """
         with Session(self.engine) as session:
-            stmt = select(Card)
+            # stmt = select(Card)
+
+            # if include_non_character:
+            #     stmt = stmt.where(
+            #         or_(
+            #             and_(
+            #                 Card.card_type == CardType.CHARACTER,
+            #                 Card.character_details.has(power_level=power_level)
+            #             ),
+            #             Card.card_type != CardType.CHARACTER
+            #         )
+            #     )
+            # else:
+            #     stmt = stmt.where(
+            #         and_(
+            #             Card.card_type == CardType.CHARACTER,
+            #             Card.character_details.has(power_level=power_level)
+            #         )
+            #     )
+
+            # return list(session.scalars(stmt))
+            stmt = (
+                select(Card)
+                .options(
+                    joinedload(Card.character_details),
+                    joinedload(Card.collection_status)
+                )
+            )
 
             if include_non_character:
                 stmt = stmt.where(
@@ -349,6 +465,13 @@ class DatabaseManager:
                     Card.illustrator.ilike(f"%{illustrator}%")
                 )
 
+            stmt = stmt.options(
+                joinedload(Card.character_details),
+                joinedload(Card.support_details),
+                joinedload(Card.elemental_details),
+                joinedload(Card.collection_status)
+            )
+
             return list(session.scalars(stmt))
 
 
@@ -362,9 +485,22 @@ class DatabaseManager:
             List[Card]: List of collected cards
         """
         with Session(self.engine) as session:
+            # return list(
+            #     session.scalars(
+            #         select(Card)
+            #         .join(Card.collection_status)
+            #         .where(CollectionStatus.is_collected == True)
+            #     )
+            # )
             return list(
                 session.scalars(
                     select(Card)
+                    .options(
+                        joinedload(Card.character_details),
+                        joinedload(Card.support_details),
+                        joinedload(Card.elemental_details),
+                        joinedload(Card.collection_status)
+                    )
                     .join(Card.collection_status)
                     .where(CollectionStatus.is_collected == True)
                 )
@@ -396,8 +532,13 @@ class DatabaseManager:
             bool: True if update successful, False otherwise
         """
         with Session(self.engine) as session:
+            # card = session.scalar(
+            #     select(Card).where(Card.card_number == card_number)
+            # )
             card = session.scalar(
-                select(Card).where(Card.card_number == card_number)
+                select(Card)
+                .options(joinedload(Card.collection_status))
+                .where(Card.card_number == card_number)
             )
             if not card:
                 return False
