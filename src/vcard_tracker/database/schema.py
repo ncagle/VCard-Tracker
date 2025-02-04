@@ -70,13 +70,17 @@ class CharacterDetails(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     card_id: Mapped[int] = mapped_column(ForeignKey("cards.id"))
-    power_level: Mapped[int] = mapped_column(Integer)
-    element: Mapped[Element] = mapped_column(Enum(Element))
-    age: Mapped[int] = mapped_column(Integer)
-    height: Mapped[float] = mapped_column(Float)
-    weight: Mapped[float] = mapped_column(Float)
-    elemental_strength: Mapped[Element] = mapped_column(Enum(Element))
-    elemental_weakness: Mapped[Element] = mapped_column(Enum(Element))
+
+    # Gameplay attributes
+    power_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    element: Mapped[Optional[Element]] = mapped_column(Enum(Element), nullable=True)
+    age: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    height: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    weight: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    elemental_strength: Mapped[Optional[Element]] = mapped_column(Enum(Element), nullable=True)
+    elemental_weakness: Mapped[Optional[Element]] = mapped_column(Enum(Element), nullable=True)
+
+    # Box topper and mascott flags
     is_box_topper: Mapped[bool] = mapped_column(Boolean, default=False)
     is_mascott: Mapped[bool] = mapped_column(Boolean, default=False)
 
