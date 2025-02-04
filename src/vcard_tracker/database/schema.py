@@ -10,12 +10,31 @@ Created by NCagle
 <Description>
 """
 
-from datetime import datetime
+from datetime import datetime as dt
 from typing import Optional
-from sqlalchemy import create_engine, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import (
+    create_engine,
+    String,
+    Integer,
+    Float,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Enum
+)
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+    relationship
+)
 
-from vcard_tracker.models.base import Element, CardType, Acquisition
+# Application-specific imports
+from vcard_tracker.models.base import (
+    Element,
+    CardType,
+    Acquisition
+)
 
 
 class Base(DeclarativeBase):
@@ -97,7 +116,7 @@ class CollectionStatus(Base):
     is_promo: Mapped[bool] = mapped_column(Boolean, default=False)
     is_misprint: Mapped[bool] = mapped_column(Boolean, default=False)
     acquisition: Mapped[Optional[Acquisition]] = mapped_column(Enum(Acquisition))
-    date_acquired: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    date_acquired: Mapped[Optional[dt]] = mapped_column(DateTime)
     notes: Mapped[Optional[str]] = mapped_column(String(1000))
 
     card: Mapped["Card"] = relationship(back_populates="collection_status")
