@@ -21,20 +21,38 @@ class CharacterCard(BaseCard):
     Character card specific attributes
 
     Arguments:
-        power_level (Optional[int]): Character power level (8-10), null for box toppers
-        element (Optional[Element]): Character's element, null for box toppers
-        age (Optional[str]): Character age, null for box toppers
-        height (Optional[str]): Character height, null for box toppers
-        weight (Optional[str]): Character weight, null for box toppers
-        elemental_strength (Optional[Element]): Strong against this element, null for box toppers
-        elemental_weakness (Optional[Element]): Weak against this element, null for box toppers
+        # Required base attributes first (inherited from BaseCard)
+        # BaseCard attributes automatically included
+        name (str): Card name
+        card_type (CardType): Type of card
+        talent (str): Card talent description
+        edition (str): Card edition
+        card_number (str): Unique card number
+        illustrator (str): Card artist name
+        
+        # Character-specific attributes
+        # Even though they are technically options, they need default values of `None` for the dataclass
+        power_level (Optional[int]): Character power level (8-10, 1 for mascot, None for box topper)
+        element (Optional[Element]): Character's element
+        age (Optional[str]): Character age as shown on card
+        height (Optional[str]): Character height as shown on card
+        weight (Optional[str]): Character weight as shown on card
+        elemental_strength (Optional[Element]): Strong against this element
+        elemental_weakness (Optional[Element]): Weak against this element
+
+        # Optional attributes with defaults
         is_box_topper (bool): Whether this is a box topper variant
         is_mascott (bool): Whether this is a mascott card
+        is_holo (bool): Whether card is holographic
+        is_promo (bool): Whether card is a promo version
+        is_misprint (bool): Whether card has printing errors
 
     Notes:
         Age, height, and weight are stored as strings to match card text exactly
         Box toppers (is_box_topper=True) should have null values for all gameplay attributes
         Regular character cards must have values for all gameplay attributes
+        Mascot cards must have power_level=1
+        Regular character cards must have power levels 8-10
 
     Usage:
     # Correct
@@ -61,15 +79,19 @@ class CharacterCard(BaseCard):
         power_level=8  # Can't have gameplay attributes!
     )
     """
-    power_level: Optional[int]
-    element: Optional[Element]
-    age: Optional[str]
-    height: Optional[str]
-    weight: Optional[str]
-    elemental_strength: Optional[Element]
-    elemental_weakness: Optional[Element]
+    # Required character-specific attributes
+    power_level: Optional[int] = None
+    element: Optional[Element] = None
+    age: Optional[str] = None
+    height: Optional[str] = None
+    weight: Optional[str] = None
+    elemental_strength: Optional[Element] = None
+    elemental_weakness: Optional[Element] = None
+
+    # Optional attributes with defaults
     is_box_topper: bool = False
     is_mascott: bool = False
+
 
     def __post_init__(self):
         """

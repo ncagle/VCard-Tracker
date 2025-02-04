@@ -11,7 +11,8 @@ Created by NCagle
 """
 
 from dataclasses import dataclass
-from vcard_tracker.models.base import BaseCard, Element
+from typing import Optional
+from vcard_tracker.models.base import BaseCard, Element, CardType
 
 
 @dataclass
@@ -22,7 +23,7 @@ class ElementalCard(BaseCard):
     Arguments:
         element (Element): Card's element
     """
-    element: Element
+    element: Optional[Element] = None
 
 
 @dataclass
@@ -36,7 +37,9 @@ class GuardianCard(ElementalCard):
     """
     def __post_init__(self):
         """Set card type to GUARDIAN after initialization"""
-        self.card_type = "GUARDIAN"
+        self.card_type = CardType.GUARDIAN
+        if self.element is None:
+            raise ValueError("Guardian cards must have an element")
 
 
 @dataclass
@@ -50,4 +53,6 @@ class ShieldCard(ElementalCard):
     """
     def __post_init__(self):
         """Set card type to SHIELD after initialization"""
-        self.card_type = "SHIELD"
+        self.card_type = CardType.SHIELD
+        if self.element is None:
+            raise ValueError("Shield cards must have an element")
