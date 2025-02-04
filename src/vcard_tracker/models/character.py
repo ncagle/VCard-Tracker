@@ -12,7 +12,7 @@ Created by NCagle
 
 from dataclasses import dataclass
 from typing import Optional
-from vcard_tracker.models.base import BaseCard, Element
+from vcard_tracker.models.base import BaseCard, Element, CardType
 
 
 @dataclass
@@ -96,9 +96,16 @@ class CharacterCard(BaseCard):
     def __post_init__(self):
         """
         Validate card attributes after initialization.
-        Box toppers should have null gameplay attributes.
-        Regular character cards must have non-null gameplay attributes.
+
+        Validates:
+        - Box toppers have null gameplay attributes
+        - Regular cards have all required gameplay attributes
+        - Power levels are valid (1 for mascot, 8-10 for regular)
+        - Level 10 cards are holographic
         """
+        self.card_type = CardType.CHARACTER
+
+        # Box topper validation
         if self.is_box_topper:
             if any([
                 self.power_level is not None,
@@ -109,23 +116,30 @@ class CharacterCard(BaseCard):
                 self.elemental_weakness is not None
             ]):
                 raise ValueError("Box topper cards cannot have gameplay attributes")
-        else:
-            if any([
-                self.power_level is None,
-                self.element is None,
-                self.age is None,
-                self.height is None,
-                self.weight is None,
-                self.elemental_strength is None,
-                self.elemental_weakness is None
-            ]):
-                raise ValueError("Regular character cards must have all gameplay attributes")
+            return  # Skip other validations for box toppers
 
-            # Validate power level based on card type
-            if self.is_mascott and self.power_level != 1:
-                raise ValueError("Mascot cards must have power level 1")
-            elif not self.is_mascott and self.power_level not in (8, 9, 10):
-                raise ValueError("Regular character cards must have power level 8, 9, or 10")
+        # Regular card validation - must have all attributes
+        if any([
+            self.power_level is None,
+            self.element is None,
+            self.age is None,
+            self.height is None,
+            self.weight is None,
+            self.elemental_strength is None,
+            self.elemental_weakness is None
+        ]):
+            raise ValueError("Regular character cards must have all gameplay attributes")
+
+        # Power level validation
+        if self.is_mascott and self.power_level != 1:
+            raise ValueError("Mascot cards must have power level 1")
+        elif not self.is_mascott and self.power_level not in (8, 9, 10):
+            raise ValueError("Regular character cards must have power level 8, 9, or 10")
+
+        # Level 10 holo validation
+        if self.power_level == 10 and not self.is_holo:
+            raise ValueError("Level 10 cards must be holographic")
+
 
     @property
     def is_playable(self) -> bool:
