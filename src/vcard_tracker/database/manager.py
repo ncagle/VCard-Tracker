@@ -91,6 +91,16 @@ class DatabaseManager:
         Creates database and tables if they don't exist
     """
     def __init__(self, db_path: Union[os.PathLike, str] = "data/database.sqlite"):
+        """
+        Initialize the database manager.
+        
+        Arguments:
+            db_path: Path to SQLite database file. Can be either a file path or SQLite URL.
+        """
+        # If it's a SQLite URL, extract the file path
+        if isinstance(db_path, str) and db_path.startswith("sqlite:///"):
+            db_path = db_path.replace("sqlite:///", "")
+
         db_path = Path(db_path)
         db_path.parent.mkdir(parents=True, exist_ok=True)
 

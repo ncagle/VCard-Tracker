@@ -16,14 +16,19 @@ Each fixture has a specific scope:
     - session: Created once for the entire test run
     - function: Created fresh for each test function
 
+Card Type Tests:
+    - Basic card creation for each type
+    - Validation rules (especially mascot power levels)
+    - Box topper null attributes
+    - Character card variants
 
-Basic card creation for each type
-Validation rules (especially mascot power levels)
-Box topper null attributes
-Character card variants
-Database operations with the new card formats
+Database Tests:
+    - Card querying (by type, element, level, etc.)
+    - Collection tracking
+    - Import/export functionality
+    - Data validation across multiple cards
 """
-
+import os
 import json
 from pathlib import Path
 from typing import Dict, Generator, Any
@@ -51,7 +56,7 @@ def test_db_url() -> str:
     Returns:
         str: SQLite database URL for testing
     """
-    return "sqlite:///./test_database.sqlite"
+    return "sqlite:///test_database.sqlite"  # Changed from sqlite:///./test_database.sqlite
 
 
 @pytest.fixture(scope="session")
@@ -65,19 +70,34 @@ def engine(test_db_url: str):
     Returns:
         Engine: SQLAlchemy engine instance
     """
+    # Clean up any existing test database
+    db_file = "test_database.sqlite"
+    if os.path.exists(db_file):
+        try:
+            os.remove(db_file)
+        except PermissionError:
+            print(f"Warning: Could not remove existing test database {db_file}")
+
     engine = create_engine(test_db_url, echo=False)
 
     # Create database and tables
-    if not database_exists(engine.url):
-        create_database(engine.url)
+    # if not database_exists(engine.url):  # remove?
+    #     create_database(engine.url)  # remove?
     Base.metadata.create_all(engine)
 
     yield engine
 
     # Cleanup after all tests
     Base.metadata.drop_all(engine)
-    if database_exists(engine.url):
-        drop_database(engine.url)
+    engine.dispose()
+    # if database_exists(engine.url):  # remove?
+    #     drop_database(engine.url)  # remove?
+
+    try:
+        if os.path.exists(db_file):
+            os.remove(db_file)
+    except PermissionError:
+        print(f"Warning: Could not remove test database {db_file}")
 
 
 @pytest.fixture(scope="function")
@@ -106,7 +126,7 @@ def db_session(engine) -> Generator[Session, None, None]:
 
 
 @pytest.fixture(scope="function")
-def db_manager(test_db_url: str) -> DatabaseManager:
+def db_manager() -> DatabaseManager:
     """
     Create a DatabaseManager instance for testing.
 
@@ -119,7 +139,9 @@ def db_manager(test_db_url: str) -> DatabaseManager:
     Notes:
         Creates a new manager for each test to ensure isolation
     """
-    return DatabaseManager(test_db_url)
+    # Convert SQLite URL to file path
+    db_file = "test_database.sqlite"
+    return DatabaseManager(db_file)  # Pass just the file path, not the URL
 
 
 """
