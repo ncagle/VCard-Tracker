@@ -28,7 +28,6 @@ class CardType(Enum):
     SUPPORT = auto()
     GUARDIAN = auto()
     SHIELD = auto()
-    PROMO = auto()
 
 class Acquisition(Enum):
     PULLED = auto()
@@ -47,16 +46,24 @@ class BaseCard:
         edition (str): Card edition
         card_number (str): Unique card number
         illustrator (str): Card artist name
+
+        # Optional attributes with defaults
         is_holo (bool): Whether card is holographic
         is_promo (bool): Whether card is a promo version
         is_misprint (bool): Whether card has printing errors
+        acquisition (Optional[Acquisition]): How card was acquired
+        date_acquired (Optional[datetime]): When card was acquired
+        notes (str): Additional notes about the card
     """
+    # Required attributes
     name: str
     card_type: CardType
     talent: str
     edition: str
     card_number: str
     illustrator: str
+
+    # Optional attributes with defaults
     is_holo: bool = False
     is_promo: bool = False
     is_misprint: bool = False
@@ -65,6 +72,7 @@ class BaseCard:
     acquisition: Optional[Acquisition] = None
     date_acquired: Optional[datetime] = None
     notes: str = ""
+
 
     @property
     def is_playable(self) -> bool:
