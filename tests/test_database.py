@@ -47,7 +47,9 @@ def test_get_card_by_number(db_session: Session, populated_db: DatabaseManager):
     card = populated_db.get_card_by_number("106")  # FREAM level 8
     assert card is not None
     assert card.name == "FREAM"
-    assert card.power_level == 8
+    assert card.character_details is not None  # Check if it has character details
+    assert card.character_details.power_level == 8
+
 
     # Try to get a non-existent card
     card = populated_db.get_card_by_number("999999")
@@ -81,6 +83,7 @@ def test_get_cards_by_element(db_session: Session, populated_db: DatabaseManager
     assert len(platinum_cards) > 0
     for card in platinum_cards:
         if card.card_type == CardType.CHARACTER:
+            assert card.character_details is not None  # Check if it has character details
             assert card.character_details.element == Element.PLATINUM
         elif card.card_type in (CardType.GUARDIAN, CardType.SHIELD):
             assert card.elemental_details.element == Element.PLATINUM
@@ -110,9 +113,10 @@ def test_get_character_variants(db_session: Session, populated_db: DatabaseManag
     # Get all FREAM variants
     variants = populated_db.get_character_variants("FREAM", include_box_topper=True)
     assert len(variants) > 0
-    assert any(card.power_level == 8 for card in variants)
-    assert any(card.power_level == 9 for card in variants)
-    assert any(card.power_level == 10 for card in variants)
+    assert all(card.character_details is not None for card in variants)  # Check if it has character details
+    assert any(card.character_details.power_level == 8 for card in variants)
+    assert any(card.character_details.power_level == 9 for card in variants)
+    assert any(card.character_details.power_level == 10 for card in variants)
     assert any(card.is_box_topper for card in variants)
 
     # Test without box topper
@@ -127,7 +131,8 @@ def test_get_cards_by_power_level(db_session: Session, populated_db: DatabaseMan
     level_8_cards = populated_db.get_cards_by_power_level(8)
     assert len(level_8_cards) > 0
     assert all(card.card_type == CardType.CHARACTER for card in level_8_cards)
-    assert all(card.power_level == 8 for card in level_8_cards)
+    assert all(card.character_details is not None for card in level_8_cards)  # Check if it has character details
+    assert all(card.character_details.power_level == 8 for card in level_8_cards)
 
     # Get level 1 (mascot) cards
     mascot_cards = populated_db.get_cards_by_power_level(1)
