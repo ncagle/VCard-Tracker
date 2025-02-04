@@ -70,3 +70,37 @@ class CharacterCard(BaseCard):
     elemental_weakness: Optional[Element]
     is_box_topper: bool = False
     is_mascott: bool = False
+
+    def __post_init__(self):
+        """
+        Validate card attributes after initialization.
+        Box toppers should have null gameplay attributes.
+        Regular character cards must have non-null gameplay attributes.
+        """
+        if self.is_box_topper:
+            if any([
+                self.power_level is not None,
+                self.age is not None,
+                self.height is not None,
+                self.weight is not None,
+                self.elemental_strength is not None,
+                self.elemental_weakness is not None
+            ]):
+                raise ValueError("Box topper cards cannot have gameplay attributes")
+        else:
+            if any([
+                self.power_level is None,
+                self.element is None,
+                self.age is None,
+                self.height is None,
+                self.weight is None,
+                self.elemental_strength is None,
+                self.elemental_weakness is None
+            ]):
+                raise ValueError("Regular character cards must have all gameplay attributes")
+
+            # Validate power level based on card type
+            if self.is_mascott and self.power_level != 1:
+                raise ValueError("Mascot cards must have power level 1")
+            elif not self.is_mascott and self.power_level not in (8, 9, 10):
+                raise ValueError("Regular character cards must have power level 8, 9, or 10")
