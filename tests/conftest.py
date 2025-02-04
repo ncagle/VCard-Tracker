@@ -38,7 +38,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from vcard_tracker.database.schema import Base
+from vcard_tracker.database.schema import Base, Card
 from vcard_tracker.models.base import Element, CardType, Acquisition
 from vcard_tracker.database.manager import DatabaseManager
 
@@ -181,12 +181,125 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
         DatabaseManager: Database manager with sample data loaded
 
     Notes:
-        - Loads all sample cards into the database
-        - Handles different card types appropriately
+        - Loads all test cards into database
+        - Converts JSON data into proper model instances
+        - Handles all card types and variants
         - Returns manager ready for testing
     """
-    # Implementation will be added when we create sample data
-    return db_manager
+    with Session(db_manager.engine) as session:
+        # Load character cards
+        for variant_name, card_data in sample_cards["characters"].items():
+            card = Base(
+                name=card_data["name"],
+                card_type=CardType[card_data["card_type"]],
+                talent=card_data["talent"],
+                edition="Base",
+                card_number=card_data["card_number"],
+                illustrator=card_data["illustrator"],
+                image_path=f"character/{card_data['card_number']}.png"
+            )
+
+            # Add character-specific details
+            if not card_data["is_box_topper"]:
+                card.character_details = CharacterDetails(
+                    power_level=card_data["power_level"],
+                    element=Element[card_data["element"]] if card_data["element"] else None,
+                    age=card_data["age"],
+                    height=card_data["height"],
+                    weight=card_data["weight"],
+                    elemental_strength=Element[card_data["elemental_strength"]] if card_data["elemental_strength"] else None,
+                    elemental_weakness=Element[card_data["elemental_weakness"]] if card_data["elemental_weakness"] else None,
+                    is_box_topper=card_data["is_box_topper"],
+                    is_mascott=card_data["is_mascott"]
+                )
+
+            session.add(card)
+
+        # Load support cards
+        for variant_name, card_data in sample_cards["support"].items():
+            card = Base(
+                name=card_data["name"],
+                card_type=CardType[card_data["card_type"]],
+                talent=card_data["talent"],
+                edition="Base",
+                card_number=card_data["card_number"],
+                illustrator=card_data["illustrator"],
+                image_path=f"support/{card_data['card_number']}.png"
+            )
+
+            card.support_details = SupportDetails(
+                is_secret_rare=card_data["is_secret_rare"]
+            )
+
+            session.add(card)
+
+        # Load guardian cards
+        for variant_name, card_data in sample_cards["guardians"].items():
+            card = Base(
+                name=card_data["name"],
+                card_type=CardType[card_data["card_type"]],
+                talent=card_data["talent"],
+                edition="Base",
+                card_number=card_data["card_number"],
+                illustrator=card_data["illustrator"],
+                image_path=f"guardian/{card_data['card_number']}.png"
+            )
+
+            card.elemental_details = ElementalDetails(
+                element=Element[card_data["element"]]
+            )
+
+            session.add(card)
+
+        # Load shield cards
+        for variant_name, card_data in sample_cards["shields"].items():
+            card = Base(
+                name=card_data["name"],
+                card_type=CardType[card_data["card_type"]],
+                talent=card_data["talent"],
+                edition="Base",
+                card_number=card_data["card_number"],
+                illustrator=card_data["illustrator"],
+                image_path=f"shield/{card_data['card_number']}.png"
+            )
+
+            card.elemental_details = ElementalDetails(
+                element=Element[card_data["element"]]
+            )
+
+            session.add(card)
+
+        # Load edge cases
+        for variant_name, card_data in sample_cards["edge_cases"].items():
+            card = Base(
+                name=card_data["name"],
+                card_type=CardType[card_data["card_type"]],
+                talent=card_data["talent"],
+                edition="Base",
+                card_number=card_data["card_number"],
+                illustrator=card_data["illustrator"],
+                image_path=f"character/{card_data['card_number']}.png"
+            )
+
+            if card_data["card_type"] == "CHARACTER":
+                card.character_details = CharacterDetails(
+                    power_level=card_data["power_level"],
+                    element=Element[card_data["element"]],
+                    age=card_data["age"],
+                    height=card_data["height"],
+                    weight=card_data["weight"],
+                    elemental_strength=Element[card_data["elemental_strength"]],
+                    elemental_weakness=Element[card_data["elemental_weakness"]],
+                    is_box_topper=card_data.get("is_box_topper", False),
+                    is_mascott=card_data.get("is_mascott", False)
+                )
+
+            session.add(card)
+
+        # Commit all cards to database
+        session.commit()
+
+        return db_manager
 
 
 """
