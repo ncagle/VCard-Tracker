@@ -84,6 +84,48 @@ class DatabaseManager:
     """
     Handles database operations for the card tracker
 
+    Card Querying
+        - Basic Card Queries
+            - Get by card number
+            - Get by card type
+            - Get by element
+            - Get by card art illustrator
+        - Character-Specific Queries
+            - Get by character name
+            - Get all variants of a character
+            - Get by power level
+            - Include/exclude box toppers
+        - Collection Queries
+            - Get cards in collection
+            - Update status of card in collection
+            - Error handling for non-existent cards
+
+    Collection Analysis
+        - Get collection progress statistics
+        - Find missing cards from collection
+        - Check for complete character sets
+        - View recent card acquisitions
+
+    Collection Management
+        - Update multiple cards at once
+        - Add notes to card
+        - Update card condition flags
+        - Record card trades
+
+    Data Validation
+        - Validate card number format
+        - Check for duplicate entries
+        - Verify data and database integrity
+
+    Filter/Search
+        - Search cards with text and filters
+        - Apply complex multi-criteria filters
+
+    Import/Export
+        - Export collection to file
+        - Import collection from file
+        - Create database backups
+
     Arguments:
         db_path (str): Path to SQLite database file
 
