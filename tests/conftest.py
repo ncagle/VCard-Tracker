@@ -210,19 +210,28 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
                 image_path=f"character/{card_data['card_number']}.png"
             )
 
-            # Add character-specific details
-            if not card_data["is_box_topper"]:
-                card.character_details = CharacterDetails(
-                    power_level=card_data["power_level"],
-                    element=Element[card_data["element"]] if card_data["element"] else None,
-                    age=card_data["age"],
-                    height=card_data["height"],
-                    weight=card_data["weight"],
-                    elemental_strength=Element[card_data["elemental_strength"]] if card_data["elemental_strength"] else None,
-                    elemental_weakness=Element[card_data["elemental_weakness"]] if card_data["elemental_weakness"] else None,
-                    is_box_topper=card_data["is_box_topper"],
-                    is_mascott=card_data["is_mascott"]
-                )
+            # Add character-specific details (for both regular cards and box toppers)
+            card.character_details = CharacterDetails(
+                power_level=(None if card_data["is_box_topper"]
+                             else card_data["power_level"]),
+                element=(None if card_data["is_box_topper"]
+                         else Element[card_data["element"]]
+                         if card_data["element"] else None),
+                age=(None if card_data["is_box_topper"]
+                     else card_data["age"]),
+                height=(None if card_data["is_box_topper"]
+                        else card_data["height"]),
+                weight=(None if card_data["is_box_topper"]
+                        else card_data["weight"]),
+                elemental_strength=(None if card_data["is_box_topper"]
+                                    else Element[card_data["elemental_strength"]]
+                                    if card_data["elemental_strength"] else None),
+                elemental_weakness=(None if card_data["is_box_topper"]
+                                    else Element[card_data["elemental_weakness"]]
+                                    if card_data["elemental_weakness"] else None),
+                is_box_topper=card_data["is_box_topper"],
+                is_mascott=card_data["is_mascott"]
+            )
 
             session.add(card)
 
