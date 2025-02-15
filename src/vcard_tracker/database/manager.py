@@ -849,6 +849,327 @@ class DatabaseManager:
 
 
     """
+    ╔════════════════════════════╗
+    ║ Data Validation Operations ║
+    ╚════════════════════════════╝
+    """
+    def validate_card_number(
+        self,
+        card_number: str
+    ) -> Tuple[bool, Optional[str]]:
+        """
+        Validates card number format and uniqueness using regex patterns for each card type
+        Checks for uniqueness in the database
+        Returns validation status and detailed error message if invalid
+
+        Arguments:
+            card_number (str): Card number to validate
+
+        Returns:
+            Tuple[bool, Optional[str]]: (is_valid, error_message)
+                - is_valid: Whether the card number is valid
+                - error_message: Description of validation failure if any
+
+        Notes:
+            Validates:
+            - Correct format per card type
+            - Number exists in valid range
+            - No duplicate numbers
+        """
+        if not card_number:
+            return False, "Card number cannot be empty"
+
+        # Define expected formats for different card types
+        patterns = {
+            "character": r"^CH-\d{3}[A-Z]$",    # CH-001A
+            "support": r"^SP-\d{3}[A-Z]$",      # SP-001A
+            "guardian": r"^GD-\d{3}$",          # GD-001
+            "shield": r"^SH-\d{3}$",            # SH-001
+            "promo": r"^PR-\d{4}$"              # PR-0001
+        }
+
+        # Check format
+        valid_format = any(
+            re.match(pattern, card_number)
+            for pattern in patterns.values()
+        )
+        if not valid_format:
+            return False, "Invalid card number format"
+
+        # Check for duplicates
+        with Session(self.engine) as session:
+            existing = session.scalar(
+                select(Card).where(Card.card_number == card_number)
+            )
+            if existing:
+                return False, "Card number already exists"
+
+        return True, None
+
+
+    def get_duplicate_entries(self) -> Dict[str, List[Dict]]:
+        """
+        Finds multiple types of potential duplicates in the database
+        Checks for duplicate card numbers, name inconsistencies, and element mismatches
+
+        Returns:
+            Returns detailed information about found duplicates for investigation
+            Dict[str, List[Dict]]: Dictionary of duplicate types and their instances:
+                - duplicate_numbers: Cards with same number
+                - duplicate_names: Cards with same name (excluding variants)
+                - mismatched_elements: Cards with conflicting elements
+
+        Notes:
+            Helps identify:
+            - Accidentally duplicated card numbers
+            - Name inconsistencies across variants
+            - Element mismatches for same character
+        """
+        duplicates = {
+            "duplicate_numbers": [],
+            "duplicate_names": [],
+            "mismatched_elements": []
+        }
+
+        with Session(self.engine) as session:
+            # Check for duplicate card numbers
+            number_count = (
+                select(Card.card_number, func.count(Card.id).label("count"))
+                .group_by(Card.card_number)
+                .having(func.count(Card.id) > 1)
+            )
+
+            for number, count in session.execute(number_count):
+                cards = session.scalars(
+                    select(Card).where(Card.card_number == number)
+                ).all()
+                duplicates["duplicate_numbers"].append({
+                    "card_number": number,
+                    "count": count,
+                    "cards": [
+                        {"id": c.id, "name": c.name, "type": c.card_type.name}
+                        for c in cards
+                    ]
+                })
+
+            # Check for name inconsistencies across variants
+            # (excluding intentional variants like mascott/levels)
+            stmt = (
+                select(Card.name, func.count(Card.id).label("count"))
+                .where(Card.card_type == CardType.CHARACTER)
+                .group_by(Card.name)
+                .having(func.count(Card.id) > 8)  # More variants than expected
+            )
+
+            for name, count in session.execute(stmt):
+                cards = session.scalars(
+                    select(Card).where(Card.name == name)
+                ).all()
+                duplicates["duplicate_names"].append({
+                    "name": name,
+                    "count": count,
+                    "cards": [
+                        {"id": c.id, "number": c.card_number, "type": c.card_type.name}
+                        for c in cards
+                    ]
+                })
+
+            # Check for element mismatches
+            characters = session.scalars(
+                select(Card)
+                .where(Card.card_type == CardType.CHARACTER)
+                .join(Card.character_details)
+            ).all()
+
+            # Group by name and check elements
+            by_name = {}
+            for char in characters:
+                if char.name not in by_name:
+                    by_name[char.name] = set()
+                by_name[char.name].add(char.character_details.element)
+
+            # Record any with multiple elements
+            for name, elements in by_name.items():
+                if len(elements) > 1:
+                    cards = session.scalars(
+                        select(Card)
+                        .where(Card.name == name)
+                        .join(Card.character_details)
+                    ).all()
+                    duplicates["mismatched_elements"].append({
+                        "name": name,
+                        "elements": [e.name for e in elements],
+                        "cards": [
+                            {
+                                "id": c.id,
+                                "number": c.card_number,
+                                "element": c.character_details.element.name
+                            }
+                            for c in cards
+                        ]
+                    })
+
+        return duplicates
+
+
+    def verify_database_integrity(self) -> Dict[str, List[Dict]]:
+        """
+        Perform comprehensive database integrity check
+            - Missing type-specific details
+            - Invalid element assignments
+            - Collection status issues
+            - Game rule constraint violations
+
+        Returns:
+            Returns detailed report of all found issues
+            Dict[str, List[Dict]]: Dictionary of integrity issues found:
+                - missing_details: Cards missing type-specific details
+                - invalid_elements: Cards with invalid element assignments
+                - collection_issues: Problems with collection status records
+                - constraint_violations: Cards violating game rules
+
+        Notes:
+            Verifies:
+            - All cards have appropriate type-specific details
+            - Elements are assigned correctly per card type
+            - Collection status records are valid
+            - Game rule constraints are maintained
+        """
+        issues = {
+            "missing_details": [],
+            "invalid_elements": [],
+            "collection_issues": [],
+            "constraint_violations": []
+        }
+
+        with Session(self.engine) as session:
+            # Check for missing type-specific details
+            all_cards = session.scalars(select(Card)).all()
+            for card in all_cards:
+                details_missing = []
+
+                if card.card_type == CardType.CHARACTER:
+                    if not card.character_details:
+                        details_missing.append("character_details")
+                elif card.card_type == CardType.SUPPORT:
+                    if not card.support_details:
+                        details_missing.append("support_details")
+                elif card.card_type in (CardType.GUARDIAN, CardType.SHIELD):
+                    if not card.elemental_details:
+                        details_missing.append("elemental_details")
+
+                if details_missing:
+                    issues["missing_details"].append({
+                        "id": card.id,
+                        "number": card.card_number,
+                        "name": card.name,
+                        "type": card.card_type.name,
+                        "missing": details_missing
+                    })
+
+            # Check for invalid element assignments
+            # Characters must have valid element and strength/weakness
+            character_cards = session.scalars(
+                select(Card)
+                .where(Card.card_type == CardType.CHARACTER)
+                .join(Card.character_details)
+            ).all()
+
+            for card in character_cards:
+                details = card.character_details
+                if not details.element or not details.elemental_strength or not details.elemental_weakness:
+                    issues["invalid_elements"].append({
+                        "id": card.id,
+                        "number": card.card_number,
+                        "name": card.name,
+                        "missing_elements": {
+                            "main": not details.element,
+                            "strength": not details.elemental_strength,
+                            "weakness": not details.elemental_weakness
+                        }
+                    })
+
+            # Guardian/Shield cards must have exactly one element
+            elemental_cards = session.scalars(
+                select(Card)
+                .where(Card.card_type.in_([CardType.GUARDIAN, CardType.SHIELD]))
+                .join(Card.elemental_details)
+            ).all()
+
+            element_counts = {e: 0 for e in Element}
+            for card in elemental_cards:
+                if card.elemental_details and card.elemental_details.element:
+                    element_counts[card.elemental_details.element] += 1
+
+            for element, count in element_counts.items():
+                if count != 2:  # Should be exactly 1 guardian + 1 shield
+                    issues["invalid_elements"].append({
+                        "element": element.name,
+                        "count": count,
+                        "error": "Each element should have exactly one guardian and one shield card"
+                    })
+
+            # Check collection status issues
+            collection_records = session.scalars(
+                select(CollectionStatus)
+            ).all()
+
+            for status in collection_records:
+                status_issues = []
+
+                # Check for orphaned records
+                if not status.card:
+                    status_issues.append("No associated card")
+
+                # Check for invalid dates
+                if status.is_collected and not status.date_acquired:
+                    status_issues.append("Missing acquisition date")
+
+                # Check for invalid acquisition methods
+                if status.is_collected and not status.acquisition:
+                    status_issues.append("Missing acquisition method")
+
+                if status_issues:
+                    issues["collection_issues"].append({
+                        "id": status.id,
+                        "card_id": status.card_id,
+                        "issues": status_issues
+                    })
+
+            # Check game rule constraint violations
+            for card in character_cards:
+                constraint_issues = []
+                details = card.character_details
+
+                # Power level constraints
+                if details.power_level not in (8, 9, 10):
+                    constraint_issues.append(
+                        f"Invalid power level: {details.power_level}"
+                    )
+
+                # Level 10 must be holo
+                if details.power_level == 10:
+                    if card.collection_status and not card.collection_status.is_holo:
+                        constraint_issues.append("Level 10 card must be holo")
+
+                # Box topper cannot have power level
+                if details.is_box_topper and details.power_level:
+                    constraint_issues.append(
+                        "Box topper should not have power level"
+                    )
+
+                if constraint_issues:
+                    issues["constraint_violations"].append({
+                        "id": card.id,
+                        "number": card.card_number,
+                        "name": card.name,
+                        "issues": constraint_issues
+                    })
+
+        return issues
+
+
+    """
     ╔══════════════════════════╗
     ║ Filter/Search Operations ║
     ╚══════════════════════════╝
@@ -1261,324 +1582,3 @@ class DatabaseManager:
         except Exception as e:
             print(f"Backup failed: {e}")
             return False
-
-
-    """
-    ╔════════════════════════════╗
-    ║ Data Validation Operations ║
-    ╚════════════════════════════╝
-    """
-    def validate_card_number(
-        self,
-        card_number: str
-    ) -> Tuple[bool, Optional[str]]:
-        """
-        Validates card number format and uniqueness using regex patterns for each card type
-        Checks for uniqueness in the database
-        Returns validation status and detailed error message if invalid
-
-        Arguments:
-            card_number (str): Card number to validate
-
-        Returns:
-            Tuple[bool, Optional[str]]: (is_valid, error_message)
-                - is_valid: Whether the card number is valid
-                - error_message: Description of validation failure if any
-
-        Notes:
-            Validates:
-            - Correct format per card type
-            - Number exists in valid range
-            - No duplicate numbers
-        """
-        if not card_number:
-            return False, "Card number cannot be empty"
-
-        # Define expected formats for different card types
-        patterns = {
-            "character": r"^CH-\d{3}[A-Z]$",    # CH-001A
-            "support": r"^SP-\d{3}[A-Z]$",      # SP-001A
-            "guardian": r"^GD-\d{3}$",          # GD-001
-            "shield": r"^SH-\d{3}$",            # SH-001
-            "promo": r"^PR-\d{4}$"              # PR-0001
-        }
-
-        # Check format
-        valid_format = any(
-            re.match(pattern, card_number)
-            for pattern in patterns.values()
-        )
-        if not valid_format:
-            return False, "Invalid card number format"
-
-        # Check for duplicates
-        with Session(self.engine) as session:
-            existing = session.scalar(
-                select(Card).where(Card.card_number == card_number)
-            )
-            if existing:
-                return False, "Card number already exists"
-
-        return True, None
-
-
-    def get_duplicate_entries(self) -> Dict[str, List[Dict]]:
-        """
-        Finds multiple types of potential duplicates in the database
-        Checks for duplicate card numbers, name inconsistencies, and element mismatches
-
-        Returns:
-            Returns detailed information about found duplicates for investigation
-            Dict[str, List[Dict]]: Dictionary of duplicate types and their instances:
-                - duplicate_numbers: Cards with same number
-                - duplicate_names: Cards with same name (excluding variants)
-                - mismatched_elements: Cards with conflicting elements
-
-        Notes:
-            Helps identify:
-            - Accidentally duplicated card numbers
-            - Name inconsistencies across variants
-            - Element mismatches for same character
-        """
-        duplicates = {
-            "duplicate_numbers": [],
-            "duplicate_names": [],
-            "mismatched_elements": []
-        }
-
-        with Session(self.engine) as session:
-            # Check for duplicate card numbers
-            number_count = (
-                select(Card.card_number, func.count(Card.id).label("count"))
-                .group_by(Card.card_number)
-                .having(func.count(Card.id) > 1)
-            )
-
-            for number, count in session.execute(number_count):
-                cards = session.scalars(
-                    select(Card).where(Card.card_number == number)
-                ).all()
-                duplicates["duplicate_numbers"].append({
-                    "card_number": number,
-                    "count": count,
-                    "cards": [
-                        {"id": c.id, "name": c.name, "type": c.card_type.name}
-                        for c in cards
-                    ]
-                })
-
-            # Check for name inconsistencies across variants
-            # (excluding intentional variants like mascott/levels)
-            stmt = (
-                select(Card.name, func.count(Card.id).label("count"))
-                .where(Card.card_type == CardType.CHARACTER)
-                .group_by(Card.name)
-                .having(func.count(Card.id) > 8)  # More variants than expected
-            )
-
-            for name, count in session.execute(stmt):
-                cards = session.scalars(
-                    select(Card).where(Card.name == name)
-                ).all()
-                duplicates["duplicate_names"].append({
-                    "name": name,
-                    "count": count,
-                    "cards": [
-                        {"id": c.id, "number": c.card_number, "type": c.card_type.name}
-                        for c in cards
-                    ]
-                })
-
-            # Check for element mismatches
-            characters = session.scalars(
-                select(Card)
-                .where(Card.card_type == CardType.CHARACTER)
-                .join(Card.character_details)
-            ).all()
-
-            # Group by name and check elements
-            by_name = {}
-            for char in characters:
-                if char.name not in by_name:
-                    by_name[char.name] = set()
-                by_name[char.name].add(char.character_details.element)
-
-            # Record any with multiple elements
-            for name, elements in by_name.items():
-                if len(elements) > 1:
-                    cards = session.scalars(
-                        select(Card)
-                        .where(Card.name == name)
-                        .join(Card.character_details)
-                    ).all()
-                    duplicates["mismatched_elements"].append({
-                        "name": name,
-                        "elements": [e.name for e in elements],
-                        "cards": [
-                            {
-                                "id": c.id,
-                                "number": c.card_number,
-                                "element": c.character_details.element.name
-                            }
-                            for c in cards
-                        ]
-                    })
-
-        return duplicates
-
-
-    def verify_database_integrity(self) -> Dict[str, List[Dict]]:
-        """
-        Perform comprehensive database integrity check
-            - Missing type-specific details
-            - Invalid element assignments
-            - Collection status issues
-            - Game rule constraint violations
-
-        Returns:
-            Returns detailed report of all found issues
-            Dict[str, List[Dict]]: Dictionary of integrity issues found:
-                - missing_details: Cards missing type-specific details
-                - invalid_elements: Cards with invalid element assignments
-                - collection_issues: Problems with collection status records
-                - constraint_violations: Cards violating game rules
-
-        Notes:
-            Verifies:
-            - All cards have appropriate type-specific details
-            - Elements are assigned correctly per card type
-            - Collection status records are valid
-            - Game rule constraints are maintained
-        """
-        issues = {
-            "missing_details": [],
-            "invalid_elements": [],
-            "collection_issues": [],
-            "constraint_violations": []
-        }
-
-        with Session(self.engine) as session:
-            # Check for missing type-specific details
-            all_cards = session.scalars(select(Card)).all()
-            for card in all_cards:
-                details_missing = []
-
-                if card.card_type == CardType.CHARACTER:
-                    if not card.character_details:
-                        details_missing.append("character_details")
-                elif card.card_type == CardType.SUPPORT:
-                    if not card.support_details:
-                        details_missing.append("support_details")
-                elif card.card_type in (CardType.GUARDIAN, CardType.SHIELD):
-                    if not card.elemental_details:
-                        details_missing.append("elemental_details")
-
-                if details_missing:
-                    issues["missing_details"].append({
-                        "id": card.id,
-                        "number": card.card_number,
-                        "name": card.name,
-                        "type": card.card_type.name,
-                        "missing": details_missing
-                    })
-
-            # Check for invalid element assignments
-            # Characters must have valid element and strength/weakness
-            character_cards = session.scalars(
-                select(Card)
-                .where(Card.card_type == CardType.CHARACTER)
-                .join(Card.character_details)
-            ).all()
-
-            for card in character_cards:
-                details = card.character_details
-                if not details.element or not details.elemental_strength or not details.elemental_weakness:
-                    issues["invalid_elements"].append({
-                        "id": card.id,
-                        "number": card.card_number,
-                        "name": card.name,
-                        "missing_elements": {
-                            "main": not details.element,
-                            "strength": not details.elemental_strength,
-                            "weakness": not details.elemental_weakness
-                        }
-                    })
-
-            # Guardian/Shield cards must have exactly one element
-            elemental_cards = session.scalars(
-                select(Card)
-                .where(Card.card_type.in_([CardType.GUARDIAN, CardType.SHIELD]))
-                .join(Card.elemental_details)
-            ).all()
-
-            element_counts = {e: 0 for e in Element}
-            for card in elemental_cards:
-                if card.elemental_details and card.elemental_details.element:
-                    element_counts[card.elemental_details.element] += 1
-
-            for element, count in element_counts.items():
-                if count != 2:  # Should be exactly 1 guardian + 1 shield
-                    issues["invalid_elements"].append({
-                        "element": element.name,
-                        "count": count,
-                        "error": "Each element should have exactly one guardian and one shield card"
-                    })
-
-            # Check collection status issues
-            collection_records = session.scalars(
-                select(CollectionStatus)
-            ).all()
-
-            for status in collection_records:
-                status_issues = []
-
-                # Check for orphaned records
-                if not status.card:
-                    status_issues.append("No associated card")
-
-                # Check for invalid dates
-                if status.is_collected and not status.date_acquired:
-                    status_issues.append("Missing acquisition date")
-
-                # Check for invalid acquisition methods
-                if status.is_collected and not status.acquisition:
-                    status_issues.append("Missing acquisition method")
-
-                if status_issues:
-                    issues["collection_issues"].append({
-                        "id": status.id,
-                        "card_id": status.card_id,
-                        "issues": status_issues
-                    })
-
-            # Check game rule constraint violations
-            for card in character_cards:
-                constraint_issues = []
-                details = card.character_details
-
-                # Power level constraints
-                if details.power_level not in (8, 9, 10):
-                    constraint_issues.append(
-                        f"Invalid power level: {details.power_level}"
-                    )
-
-                # Level 10 must be holo
-                if details.power_level == 10:
-                    if card.collection_status and not card.collection_status.is_holo:
-                        constraint_issues.append("Level 10 card must be holo")
-
-                # Box topper cannot have power level
-                if details.is_box_topper and details.power_level:
-                    constraint_issues.append(
-                        "Box topper should not have power level"
-                    )
-
-                if constraint_issues:
-                    issues["constraint_violations"].append({
-                        "id": card.id,
-                        "number": card.card_number,
-                        "name": card.name,
-                        "issues": constraint_issues
-                    })
-
-        return issues
