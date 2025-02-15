@@ -141,7 +141,7 @@ def test_get_cards_by_power_level(db_session: Session, populated_db: DatabaseMan
     # Get level 1 (mascot) cards
     mascot_cards = populated_db.get_cards_by_power_level(1)
     assert len(mascot_cards) > 0
-    assert all(card.is_mascott for card in mascot_cards)
+    assert all(card.character_details.is_mascott for card in mascot_cards)
 
     # Test with include_non_character flag
     all_cards = populated_db.get_cards_by_power_level(8, include_non_character=True)
