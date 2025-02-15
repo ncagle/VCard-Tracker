@@ -7,7 +7,13 @@ Created by NCagle
    __(.)<
 ~~~⋱___)~~~
 
-Tests for database operations, focusing on card querying functionality.
+╔═════════════════════╗
+║ Card Querying Tests ║
+╚═════════════════════╝
+Tests for card querying database operations.
+
+This module contains tests for the DatabaseManager methods that retrieve
+cards by attributes, cards in collection, and update collection status.
 
 ✅ Card Querying
     ✅ Basic Card Queries
@@ -33,33 +39,6 @@ Tests for database operations, focusing on card querying functionality.
     test_database.py::test_get_cards_by_power_level              78% ███████▊  
     test_database.py::test_get_collected_cards                   89% ████████▉ 
     test_database.py::test_update_collection_status             100% ██████████
-
-❌ Collection Analysis
-    - Get collection progress statistics
-    - Find missing cards from collection
-    - Check for complete character sets
-    - View recent card acquisitions
-
-❌ Collection Management
-    - Update multiple cards at once
-    - Add notes to card
-    - Update card condition flags
-    - Record card trades
-
-❌ Data Validation
-    - Validate card number format
-    - Check for duplicate entries
-    - Verify data and database integrity
-
-❌ Filter/Search
-    - Search cards with text and filters
-    - Apply complex multi-criteria filters
-
-❌ Import/Export
-    - Export collection to file
-    - Import collection from file
-    - Create database backups
-
 """
 import pytest
 from sqlalchemy.orm import Session

@@ -1239,7 +1239,7 @@ class DatabaseManager:
     ║ Filter/Search Operations ║
     ╚══════════════════════════╝
     """
-    # Search cards with text and filters
+    # Search cards by name text and optional filters
     def search_cards(
         self,
         query: str,
