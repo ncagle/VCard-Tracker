@@ -224,11 +224,25 @@ def test_collection_stats_edge_cases(db_session: Session, populated_db: Database
     assert stats["total_collected"] == len(all_cards)
 
     # Test misprint tracking
-    populated_db.update_collection_status(
+    # First mark the card as collected
+    _ = populated_db.update_collection_status(
         "CH-999",  # Misprint card from sample data
-        is_collected=True,
-        is_misprint=True  # BUG: Isn't this a parameter for `update_card_condition()` instead?
+        is_collected=True
     )
+
+    # Then update its condition
+    _ = populated_db.update_card_condition(
+        "CH-999",
+        is_misprint=True
+    )
+
+    # Verify misprint is tracked correctly
+    with Session(populated_db.engine) as session:
+        misprint_card = session.query(populated_db.Card)\
+            .filter_by(card_number="CH-999")\
+            .first()
+        assert misprint_card.collection_status.is_collected
+        assert misprint_card.collection_status.is_misprint
 
     # Verify misprint is counted correctly
     stats = populated_db.get_collection_stats()
