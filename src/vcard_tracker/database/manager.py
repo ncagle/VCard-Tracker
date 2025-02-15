@@ -32,15 +32,6 @@ from datetime import datetime as dt
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-# This import block includes all necessary imports for:
-# - Basic database operations
-# - Card querying operations
-# - Collection analysis operations
-# - Collection management operations
-# - Filter/Search operations
-# - Import/Export operations
-# - Data validation operations
-
 # SQLAlchemy imports
 from sqlalchemy import (
     create_engine,
@@ -66,6 +57,14 @@ from sqlalchemy.orm import (
 )
 
 # Application-specific imports
+# This import block includes all necessary imports for:
+# - Basic database operations
+# - Card querying operations
+# - Collection analysis operations
+# - Collection management operations
+# - Filter/Search operations
+# - Import/Export operations
+# - Data validation operations
 from vcard_tracker.models.base import (
     Element,
     CardType,
@@ -130,9 +129,6 @@ class DatabaseManager:
             Card: Card object if found, None otherwise
         """
         with Session(self.engine) as session:
-            # return session.scalar(
-            #     select(Card).where(Card.card_number == card_number)
-            # )
             return session.scalar(
                 select(Card)
                 .options(
@@ -150,7 +146,7 @@ class DatabaseManager:
         card_type: CardType
     ) -> List[Card]:
         """
-        Retrieves all cards of a specified type (Character, Support, Guardian, Shield, Promo)
+        Retrieves all cards of a specified type (Character, Support, Guardian, Shield)
         Returns an empty list if no cards found of that type
         Basic filtering method that serves as foundation for more complex queries
 
@@ -161,11 +157,6 @@ class DatabaseManager:
             List[Card]: List of matching cards
         """
         with Session(self.engine) as session:
-            # return list(
-            #     session.scalars(
-            #         select(Card).where(Card.card_type == card_type)
-            #     )
-            # )
             return list(
                 session.scalars(
                     select(Card)
@@ -202,34 +193,6 @@ class DatabaseManager:
             Set include_support=True to include them in results.
         """
         with Session(self.engine) as session:
-            # # Build base query
-            # stmt = select(Card).where(
-            #     or_(
-            #         # Character cards
-            #         and_(
-            #             Card.card_type == CardType.CHARACTER,
-            #             Card.character_details.has(element=element)
-            #         ),
-            #         # Guardian/Shield cards
-            #         and_(
-            #             Card.card_type.in_([CardType.GUARDIAN, CardType.SHIELD]),
-            #             Card.elemental_details.has(element=element)
-            #         )
-            #     )
-            # )
-
-            # # Include support cards if requested
-            # if include_support:
-            #     stmt = stmt.where(
-            #         or_(
-            #             Card.card_type == CardType.SUPPORT,
-            #             Card.card_type != CardType.SUPPORT
-            #         )
-            #     )
-            # else:
-            #     stmt = stmt.where(Card.card_type != CardType.SUPPORT)
-
-            # return list(session.scalars(stmt))
             # Build base query
             stmt = (
                 select(Card)
@@ -329,19 +292,6 @@ class DatabaseManager:
             Box topper included by default but can be excluded.
         """
         with Session(self.engine) as session:
-            # stmt = select(Card).where(
-            #     and_(
-            #         Card.name == character_name,
-            #         Card.card_type == CardType.CHARACTER
-            #     )
-            # )
-
-            # if not include_box_topper:
-            #     stmt = stmt.join(Card.character_details).where(
-            #         CharacterDetails.is_box_topper == False
-            #     )
-
-            # return list(session.scalars(stmt))
             stmt = (
                 select(Card)
                 .options(
@@ -375,7 +325,7 @@ class DatabaseManager:
         Handles power level filtering properly for character cards
 
         Arguments:
-            power_level (int): Power level to filter by (8-10)
+            power_level (int): Power level to filter by (1 for mascot, 8-10 for regular)
             include_non_character (bool): Whether to include non-character cards
 
         Returns:
@@ -387,27 +337,6 @@ class DatabaseManager:
             to include other card types in results.
         """
         with Session(self.engine) as session:
-            # stmt = select(Card)
-
-            # if include_non_character:
-            #     stmt = stmt.where(
-            #         or_(
-            #             and_(
-            #                 Card.card_type == CardType.CHARACTER,
-            #                 Card.character_details.has(power_level=power_level)
-            #             ),
-            #             Card.card_type != CardType.CHARACTER
-            #         )
-            #     )
-            # else:
-            #     stmt = stmt.where(
-            #         and_(
-            #             Card.card_type == CardType.CHARACTER,
-            #             Card.character_details.has(power_level=power_level)
-            #         )
-            #     )
-
-            # return list(session.scalars(stmt))
             stmt = (
                 select(Card)
                 .options(
@@ -485,13 +414,6 @@ class DatabaseManager:
             List[Card]: List of collected cards
         """
         with Session(self.engine) as session:
-            # return list(
-            #     session.scalars(
-            #         select(Card)
-            #         .join(Card.collection_status)
-            #         .where(CollectionStatus.is_collected == True)
-            #     )
-            # )
             return list(
                 session.scalars(
                     select(Card)
@@ -532,9 +454,6 @@ class DatabaseManager:
             bool: True if update successful, False otherwise
         """
         with Session(self.engine) as session:
-            # card = session.scalar(
-            #     select(Card).where(Card.card_number == card_number)
-            # )
             card = session.scalar(
                 select(Card)
                 .options(joinedload(Card.collection_status))
@@ -1663,4 +1582,3 @@ class DatabaseManager:
                     })
 
         return issues
-
