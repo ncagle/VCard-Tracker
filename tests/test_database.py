@@ -10,33 +10,37 @@ Created by NCagle
 Tests for database operations, focusing on card querying functionality.
 
 ✅ Card querying (by type, element, level, etc.)
-    - Basic Card Queries
-        - Get by card number
-        - Get by card type
-        - Get by element
+    ✅ Basic Card Queries
+        ✅ Get by card number
+        ✅ Get by card type
+        ✅ Get by element
     - Character-Specific Queries
-        - Get by character name
+        ✅ Get by character name
         - Get all variants
-        - Get by power level
+        ✅ Get by power level
         - Include/exclude box toppers
     - Collection Management
-        - Get collected cards
+        ✅ Get collected cards
         - Update collection status
-        - Error handling for non-existent cards
+        ✅ Error handling for non-existent cards
 
-✅ Collection tracking
+❌ Collection tracking
     - asdf
 
-✅ Import/export functionality
+❌ Import/export functionality
     - asdf
 
-✅ Data validation across multiple cards
+❌ Data validation across multiple cards
     - asdf
 """
 import pytest
 from sqlalchemy.orm import Session
 
-from vcard_tracker.models.base import Element, CardType
+from vcard_tracker.models.base import (
+    Element,
+    CardType,
+    Acquisition
+)
 from vcard_tracker.database.manager import DatabaseManager
 
 
