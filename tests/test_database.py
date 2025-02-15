@@ -9,39 +9,57 @@ Created by NCagle
 
 Tests for database operations, focusing on card querying functionality.
 
-✅ Card querying (by type, element, level, etc.)
+✅ Card Querying
     ✅ Basic Card Queries
         ✅ Get by card number
         ✅ Get by card type
         ✅ Get by element
+        ✅ Get by card art illustrator
     ✅ Character-Specific Queries
         ✅ Get by character name
-        ✅ Get all variants
+        ✅ Get all variants of a character
         ✅ Get by power level
-        ✅ Get cards by artist
         ✅ Include/exclude box toppers
-    ✅ Collection Management
-        ✅ Get collected cards
-        ✅ Update collection status
+    ✅ Collection Queries
+        ✅ Get cards in collection
+        ✅ Update status of card in collection
         ✅ Error handling for non-existent cards
     test_database.py::test_get_card_by_number                    11% █▎        
     test_database.py::test_get_cards_by_type                     22% ██▎       
     test_database.py::test_get_cards_by_element                  33% ███▍      
-    test_database.py::test_get_cards_by_character_name           44% ████▌     
-    test_database.py::test_get_character_variants                56% █████▋    
-    test_database.py::test_get_cards_by_power_level              67% ██████▋   
-    test_database.py::test_get_cards_by_illustrator              78% ███████▊  
+    test_database.py::test_get_cards_by_illustrator              44% ████▌     
+    test_database.py::test_get_cards_by_character_name           56% █████▋    
+    test_database.py::test_get_character_variants                67% ██████▋   
+    test_database.py::test_get_cards_by_power_level              78% ███████▊  
     test_database.py::test_get_collected_cards                   89% ████████▉ 
     test_database.py::test_update_collection_status             100% ██████████
 
-❌ Collection tracking
-    - asdf
+❌ Collection Analysis
+    - Get collection progress statistics
+    - Find missing cards from collection
+    - Check for complete character sets
+    - View recent card acquisitions
 
-❌ Import/export functionality
-    - asdf
+❌ Collection Management
+    - Update multiple cards at once
+    - Add notes to card
+    - Update card condition flags
+    - Record card trades
 
-❌ Data validation across multiple cards
-    - asdf
+❌ Data Validation
+    - Validate card number format
+    - Check for duplicate entries
+    - Verify data and database integrity
+
+❌ Filter/Search
+    - Search cards with text and filters
+    - Apply complex multi-criteria filters
+
+❌ Import/Export
+    - Export collection to file
+    - Import collection from file
+    - Create database backups
+
 """
 import pytest
 from sqlalchemy.orm import Session
@@ -105,6 +123,20 @@ def test_get_cards_by_element(db_session: Session, populated_db: DatabaseManager
     # Test with include_support flag
     all_cards = populated_db.get_cards_by_element(Element.PLATINUM, include_support=True)
     assert len(all_cards) >= len(platinum_cards)
+
+
+@pytest.mark.database
+def test_get_cards_by_illustrator(db_session: Session, populated_db: DatabaseManager):
+    """Test retrieving cards by illustrator"""
+    # Exact match
+    cards = populated_db.get_cards_by_illustrator("Louriii", exact_match=True)
+    assert len(cards) > 0
+    assert all(card.illustrator == "Louriii" for card in cards)
+
+    # Partial match
+    cards = populated_db.get_cards_by_illustrator("Lou", exact_match=False)
+    assert len(cards) > 0
+    assert any("Lou" in card.illustrator for card in cards)
 
 
 @pytest.mark.database
@@ -175,20 +207,6 @@ def test_get_cards_by_power_level(db_session: Session, populated_db: DatabaseMan
     # Test with include_non_character flag
     all_cards = populated_db.get_cards_by_power_level(8, include_non_character=True)
     assert len(all_cards) >= len(level_8_cards)
-
-
-@pytest.mark.database
-def test_get_cards_by_illustrator(db_session: Session, populated_db: DatabaseManager):
-    """Test retrieving cards by illustrator"""
-    # Exact match
-    cards = populated_db.get_cards_by_illustrator("Louriii", exact_match=True)
-    assert len(cards) > 0
-    assert all(card.illustrator == "Louriii" for card in cards)
-
-    # Partial match
-    cards = populated_db.get_cards_by_illustrator("Lou", exact_match=False)
-    assert len(cards) > 0
-    assert any("Lou" in card.illustrator for card in cards)
 
 
 @pytest.mark.database
