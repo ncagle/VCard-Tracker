@@ -183,7 +183,7 @@ def test_update_collection_status(db_session: Session, populated_db: DatabaseMan
         card_number="106",
         is_collected=True,
         is_holo=False,
-        acquisition="PULLED",
+        acquisition=Acquisition.PULLED,  # Use enum instead of string
         notes="First pack!"
     )
     assert success
@@ -192,7 +192,7 @@ def test_update_collection_status(db_session: Session, populated_db: DatabaseMan
     card = populated_db.get_card_by_number("106")
     assert card.collection_status.is_collected
     assert not card.collection_status.is_holo
-    assert card.collection_status.acquisition == "PULLED"
+    assert card.collection_status.acquisition == Acquisition.PULLED  # Compare with enum
     assert card.collection_status.notes == "First pack!"
 
     # Test updating non-existent card

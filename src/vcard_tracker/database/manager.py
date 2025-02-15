@@ -434,7 +434,7 @@ class DatabaseManager:
         card_number: str, 
         is_collected: bool,
         is_holo: bool = False,
-        acquisition: Optional[str] = None,
+        acquisition: Optional[Acquisition] = None,
         notes: Optional[str] = None
     ) -> bool:
         """
@@ -447,7 +447,7 @@ class DatabaseManager:
             card_number (str): Card number to update
             is_collected (bool): Whether card is collected
             is_holo (bool): Whether card is holographic
-            acquisition (str): How card was acquired
+            acquisition (Acquisition): How card was acquired (enum value)
             notes (str): Additional notes
 
         Returns:
@@ -467,7 +467,7 @@ class DatabaseManager:
 
             card.collection_status.is_collected = is_collected
             card.collection_status.is_holo = is_holo
-            if acquisition:
+            if acquisition is not None:  # Only update if explicitly provided
                 card.collection_status.acquisition = acquisition
             if notes:
                 card.collection_status.notes = notes
