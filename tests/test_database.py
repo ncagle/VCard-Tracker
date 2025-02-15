@@ -14,15 +14,24 @@ Tests for database operations, focusing on card querying functionality.
         ✅ Get by card number
         ✅ Get by card type
         ✅ Get by element
-    - Character-Specific Queries
+    ✅ Character-Specific Queries
         ✅ Get by character name
-        - Get all variants
+        ✅ Get all variants
         ✅ Get by power level
-        - Include/exclude box toppers
-    - Collection Management
+        ✅ Include/exclude box toppers
+    ✅ Collection Management
         ✅ Get collected cards
-        - Update collection status
+        ✅ Update collection status
         ✅ Error handling for non-existent cards
+    test_database.py::test_get_card_by_number                    11% █▎        
+    test_database.py::test_get_cards_by_type                     22% ██▎       
+    test_database.py::test_get_cards_by_element                  33% ███▍      
+    test_database.py::test_get_cards_by_character_name           44% ████▌     
+    test_database.py::test_get_character_variants                56% █████▋    
+    test_database.py::test_get_cards_by_power_level              67% ██████▋   
+    test_database.py::test_get_cards_by_illustrator              78% ███████▊  
+    test_database.py::test_get_collected_cards                   89% ████████▉ 
+    test_database.py::test_update_collection_status             100% ██████████
 
 ❌ Collection tracking
     - asdf
