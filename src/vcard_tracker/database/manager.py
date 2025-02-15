@@ -232,6 +232,44 @@ class DatabaseManager:
             return list(session.scalars(stmt))
 
 
+    def get_cards_by_illustrator(
+        self,
+        illustrator: str,
+        exact_match: bool = True
+    ) -> List[Card]:
+        """
+        Retrieve all cards by a specific illustrator
+        Supports exact or partial matching
+        Case-insensitive when using partial matching
+
+        Arguments:
+            illustrator (str): Illustrator name to search for
+            exact_match (bool): Whether to require exact name match
+
+        Returns:
+            List[Card]: List of cards by the specified illustrator
+
+        Notes:
+            With exact_match=False, performs case-insensitive partial matching
+        """
+        with Session(self.engine) as session:
+            if exact_match:
+                stmt = select(Card).where(Card.illustrator == illustrator)
+            else:
+                stmt = select(Card).where(
+                    Card.illustrator.ilike(f"%{illustrator}%")
+                )
+
+            stmt = stmt.options(
+                joinedload(Card.character_details),
+                joinedload(Card.support_details),
+                joinedload(Card.elemental_details),
+                joinedload(Card.collection_status)
+            )
+
+            return list(session.scalars(stmt))
+
+
     def get_cards_by_character_name(
         self,
         name: str,
@@ -362,44 +400,6 @@ class DatabaseManager:
                         Card.character_details.has(power_level=power_level)
                     )
                 )
-
-            return list(session.scalars(stmt))
-
-
-    def get_cards_by_illustrator(
-        self,
-        illustrator: str,
-        exact_match: bool = True
-    ) -> List[Card]:
-        """
-        Retrieve all cards by a specific illustrator
-        Supports exact or partial matching
-        Case-insensitive when using partial matching
-
-        Arguments:
-            illustrator (str): Illustrator name to search for
-            exact_match (bool): Whether to require exact name match
-
-        Returns:
-            List[Card]: List of cards by the specified illustrator
-
-        Notes:
-            With exact_match=False, performs case-insensitive partial matching
-        """
-        with Session(self.engine) as session:
-            if exact_match:
-                stmt = select(Card).where(Card.illustrator == illustrator)
-            else:
-                stmt = select(Card).where(
-                    Card.illustrator.ilike(f"%{illustrator}%")
-                )
-
-            stmt = stmt.options(
-                joinedload(Card.character_details),
-                joinedload(Card.support_details),
-                joinedload(Card.elemental_details),
-                joinedload(Card.collection_status)
-            )
 
             return list(session.scalars(stmt))
 
