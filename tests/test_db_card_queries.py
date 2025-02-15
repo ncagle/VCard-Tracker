@@ -192,8 +192,8 @@ def test_get_cards_by_power_level(db_session: Session, populated_db: DatabaseMan
 def test_get_collected_cards(db_session: Session, populated_db: DatabaseManager):
     """Test retrieving all collected cards"""
     # First, mark some cards as collected
-    populated_db.update_collection_status("106", True)  # FREAM level 8
-    populated_db.update_collection_status("107", True)  # FREAM level 9
+    _ = populated_db.update_collection_status("106", True)  # FREAM level 8
+    _ = populated_db.update_collection_status("107", True)  # FREAM level 9
 
     # Get collected cards
     collected = populated_db.get_collected_cards()
