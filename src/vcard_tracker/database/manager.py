@@ -113,6 +113,8 @@ class DatabaseManager:
     ║ Card Querying Operations ║
     ╚══════════════════════════╝
     """
+    # ~~~~~ Basic Card Queries ~~~~~
+    # Get by card number
     def get_card_by_number(
         self,
         card_number: str
@@ -141,6 +143,7 @@ class DatabaseManager:
             )
 
 
+    # Get by card type
     def get_cards_by_type(
         self,
         card_type: CardType
@@ -171,6 +174,7 @@ class DatabaseManager:
             )
 
 
+    # Get by element
     def get_cards_by_element(
         self,
         element: Element,
@@ -232,6 +236,7 @@ class DatabaseManager:
             return list(session.scalars(stmt))
 
 
+    # Get by card art illustrator
     def get_cards_by_illustrator(
         self,
         illustrator: str,
@@ -270,6 +275,8 @@ class DatabaseManager:
             return list(session.scalars(stmt))
 
 
+    # ~~~~~ Character-Specific Queries ~~~~~
+    # Get by character name
     def get_cards_by_character_name(
         self,
         name: str,
@@ -308,6 +315,7 @@ class DatabaseManager:
             return list(session.scalars(stmt))
 
 
+    # Get all variants of a character
     def get_character_variants(
         self,
         character_name: str,
@@ -352,6 +360,7 @@ class DatabaseManager:
             return list(session.scalars(stmt))
 
 
+    # Get by power level
     def get_cards_by_power_level(
         self,
         power_level: int,
@@ -404,6 +413,8 @@ class DatabaseManager:
             return list(session.scalars(stmt))
 
 
+    # ~~~~~ Collection Queries ~~~~~
+    # Get cards in collection
     def get_collected_cards(self) -> List[Card]:
         """
         Returns all cards marked as collected in the database
@@ -429,6 +440,7 @@ class DatabaseManager:
             )
 
 
+    # Update status of card in collection
     def update_collection_status(
         self,
         card_number: str, 
@@ -481,6 +493,7 @@ class DatabaseManager:
     ║ Collection Analysis Operations ║
     ╚════════════════════════════════╝
     """
+    # Get collection progress statistics
     def get_collection_stats(self) -> dict:
         """
         Get statistics about the card collection
@@ -558,6 +571,7 @@ class DatabaseManager:
             }
 
 
+    # Find missing cards from collection
     def get_missing_cards(self) -> List[Card]:
         """
         Get list of uncollected cards
@@ -581,6 +595,7 @@ class DatabaseManager:
             )
 
 
+    # Check for complete character sets
     def get_complete_sets(self) -> List[str]:
         """
         Get list of character names where all variants are collected
@@ -627,6 +642,7 @@ class DatabaseManager:
             return complete_sets
 
 
+    # View recent card acquisitions
     def get_recent_acquisitions(
         self,
         limit: int = 10
@@ -658,6 +674,7 @@ class DatabaseManager:
     ║ Collection Management Operations ║
     ╚══════════════════════════════════╝
     """
+    # Update multiple cards at once
     def bulk_update_collection(
         self,
         card_numbers: List[str],
@@ -698,6 +715,7 @@ class DatabaseManager:
                 return False
 
 
+    # Add notes to card
     def add_card_note(
         self,
         card_number: str,
@@ -744,6 +762,7 @@ class DatabaseManager:
                 return False
 
 
+    # Update card condition flags
     def update_card_condition(
         self,
         card_number: str,
@@ -782,6 +801,7 @@ class DatabaseManager:
                 return False
 
 
+    # Record card trades
     def record_trade(
         self,
         acquired_card: str,
@@ -853,6 +873,7 @@ class DatabaseManager:
     ║ Data Validation Operations ║
     ╚════════════════════════════╝
     """
+    # Validate card number format
     def validate_card_number(
         self,
         card_number: str
@@ -907,6 +928,7 @@ class DatabaseManager:
         return True, None
 
 
+    # Check for duplicate entries
     def get_duplicate_entries(self) -> Dict[str, List[Dict]]:
         """
         Finds multiple types of potential duplicates in the database
@@ -1012,6 +1034,7 @@ class DatabaseManager:
         return duplicates
 
 
+    # Verify data and database integrity
     def verify_database_integrity(self) -> Dict[str, List[Dict]]:
         """
         Perform comprehensive database integrity check
@@ -1174,6 +1197,7 @@ class DatabaseManager:
     ║ Filter/Search Operations ║
     ╚══════════════════════════╝
     """
+    # Search cards with text and filters
     def search_cards(
         self,
         query: str,
@@ -1236,6 +1260,7 @@ class DatabaseManager:
             return list(session.scalars(stmt))
 
 
+    # Apply complex multi-criteria filters
     def get_filtered_cards(
         self,
         card_types: Optional[List[CardType]] = None,
@@ -1359,6 +1384,7 @@ class DatabaseManager:
     ║ Import/Export Operations ║
     ╚══════════════════════════╝
     """
+    # Export collection to file
     def export_collection(
         self,
         export_path: Union[str, Path],
@@ -1431,6 +1457,7 @@ class DatabaseManager:
             return False
 
 
+    # Import collection from file
     def import_collection(
         self,
         import_path: Union[str, Path],
@@ -1533,6 +1560,7 @@ class DatabaseManager:
             return stats
 
 
+    # Create database backups
     def backup_database(
         self,
         backup_dir: Union[str, Path],
