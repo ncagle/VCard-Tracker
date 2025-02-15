@@ -18,6 +18,7 @@ Tests for database operations, focusing on card querying functionality.
         ✅ Get by character name
         ✅ Get all variants
         ✅ Get by power level
+        ✅ Get cards by artist
         ✅ Include/exclude box toppers
     ✅ Collection Management
         ✅ Get collected cards
