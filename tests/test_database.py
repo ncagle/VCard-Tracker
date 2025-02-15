@@ -118,14 +118,33 @@ def test_get_character_variants(db_session: Session, populated_db: DatabaseManag
     variants = populated_db.get_character_variants("FREAM", include_box_topper=True)
     assert len(variants) > 0
     assert all(card.character_details is not None for card in variants)  # Check if it has character details
-    assert any(card.character_details.power_level == 8 for card in variants)
-    assert any(card.character_details.power_level == 9 for card in variants)
-    assert any(card.character_details.power_level == 10 for card in variants)
-    assert any(card.is_box_topper for card in variants)
+
+    # Check for each variant type
+    has_level_8 = False
+    has_level_9 = False
+    has_level_10 = False
+    has_box_topper = False
+
+    for card in variants:
+        if not card.character_details:
+            continue
+        if card.character_details.power_level == 8:
+            has_level_8 = True
+        elif card.character_details.power_level == 9:
+            has_level_9 = True
+        elif card.character_details.power_level == 10:
+            has_level_10 = True
+        if card.character_details.is_box_topper:
+            has_box_topper = True
+
+    assert has_level_8, "Missing level 8 variant"
+    assert has_level_9, "Missing level 9 variant"
+    assert has_level_10, "Missing level 10 variant"
+    assert has_box_topper, "Missing box topper variant"
 
     # Test without box topper
     variants = populated_db.get_character_variants("FREAM", include_box_topper=False)
-    assert not any(card.is_box_topper for card in variants)
+    assert not any(card.character_details.is_box_topper for card in variants if card.character_details)
 
 
 @pytest.mark.database
