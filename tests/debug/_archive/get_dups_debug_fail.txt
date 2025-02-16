@@ -1,0 +1,25 @@
+Initializing get_dups_debug.txt log
+
+
+Duplicate numbers query result for number 'CH-106' (count '2'): [<vcard_tracker.database.schema.Card object at 0x000001DC3867DB10>, <vcard_tracker.database.schema.Card object at 0x000001DC3867F310>]
+
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000001DC3867DB10>, <vcard_tracker.database.schema.Card object at 0x000001DC384D6D50>, <vcard_tracker.database.schema.Card object at 0x000001DC384D5E90>, <vcard_tracker.database.schema.Card object at 0x000001DC386F7F10>, <vcard_tracker.database.schema.Card object at 0x000001DC386F4410>, <vcard_tracker.database.schema.Card object at 0x000001DC3867F310>, <vcard_tracker.database.schema.Card object at 0x000001DC386F7650>, <vcard_tracker.database.schema.Card object at 0x000001DC386F4990>, <vcard_tracker.database.schema.Card object at 0x000001DC386F4950>]
+
+
+
+Duplicate numbers query result for number 'CH-106' (count '3'): [<vcard_tracker.database.schema.Card object at 0x000001DC3881EE10>, <vcard_tracker.database.schema.Card object at 0x000001DC3881F090>, <vcard_tracker.database.schema.Card object at 0x000001DC3881F2D0>]
+
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000001DC3881EE10>, <vcard_tracker.database.schema.Card object at 0x000001DC3882E3D0>, <vcard_tracker.database.schema.Card object at 0x000001DC3882E690>, <vcard_tracker.database.schema.Card object at 0x000001DC3882E910>, <vcard_tracker.database.schema.Card object at 0x000001DC3882EBD0>, <vcard_tracker.database.schema.Card object at 0x000001DC3881F090>, <vcard_tracker.database.schema.Card object at 0x000001DC3882F090>, <vcard_tracker.database.schema.Card object at 0x000001DC3882F210>, <vcard_tracker.database.schema.Card object at 0x000001DC3882F310>]
+
+
+
+Duplicate numbers query result for number 'CH-106' (count '2'): [<vcard_tracker.database.schema.Card object at 0x000001DC3884B790>, <vcard_tracker.database.schema.Card object at 0x000001DC3884BA50>]
+
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000001DC3884B790>, <vcard_tracker.database.schema.Card object at 0x000001DC38852650>, <vcard_tracker.database.schema.Card object at 0x000001DC38852910>, <vcard_tracker.database.schema.Card object at 0x000001DC38852B90>, <vcard_tracker.database.schema.Card object at 0x000001DC38852E50>, <vcard_tracker.database.schema.Card object at 0x000001DC3884BA50>, <vcard_tracker.database.schema.Card object at 0x000001DC388531D0>, <vcard_tracker.database.schema.Card object at 0x000001DC38853750>, <vcard_tracker.database.schema.Card object at 0x000001DC38853850>, <vcard_tracker.database.schema.Card object at 0x000001DC388530D0>, <vcard_tracker.database.schema.Card object at 0x000001DC38853A90>]
+
+
+
+Duplicate numbers query result for number 'CH-106' (count '2'): [<vcard_tracker.database.schema.Card object at 0x000001DC388EBC10>, <vcard_tracker.database.schema.Card object at 0x000001DC388EBED0>]
+
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000001DC388EBC10>, <vcard_tracker.database.schema.Card object at 0x000001DC388DEAD0>, <vcard_tracker.database.schema.Card object at 0x000001DC388DED90>, <vcard_tracker.database.schema.Card object at 0x000001DC388DF010>, <vcard_tracker.database.schema.Card object at 0x000001DC388DF2D0>, <vcard_tracker.database.schema.Card object at 0x000001DC388EBED0>, <vcard_tracker.database.schema.Card object at 0x000001DC388DF650>, <vcard_tracker.database.schema.Card object at 0x000001DC388DFBD0>, <vcard_tracker.database.schema.Card object at 0x000001DC388DFCD0>, <vcard_tracker.database.schema.Card object at 0x000001DC388DF550>, <vcard_tracker.database.schema.Card object at 0x000001DC388DFF10>]
+

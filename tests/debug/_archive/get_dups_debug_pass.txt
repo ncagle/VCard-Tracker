@@ -1,0 +1,78 @@
+Initializing get_dups_debug.txt log
+
+
+Duplicate numbers query result for number 'CH-106' (count '2'):
+Card ID: 1
+Card Number: CH-106
+Card Name: FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D57AED0>
+---
+Card ID: 13
+Card Number: CH-106
+Card Name: Misprint FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D57B190>
+---
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000002408D57ACD0>, <vcard_tracker.database.schema.Card object at 0x000002408D584AD0>, <vcard_tracker.database.schema.Card object at 0x000002408D584DD0>, <vcard_tracker.database.schema.Card object at 0x000002408D585090>, <vcard_tracker.database.schema.Card object at 0x000002408D5853D0>, <vcard_tracker.database.schema.Card object at 0x000002408D57AF90>, <vcard_tracker.database.schema.Card object at 0x000002408D585B90>, <vcard_tracker.database.schema.Card object at 0x000002408D586350>, <vcard_tracker.database.schema.Card object at 0x000002408D5865D0>]
+
+Initializing get_dups_debug.txt log
+
+
+Duplicate numbers query result for number 'CH-106' (count '3'):
+Card ID: 1
+Card Number: CH-106
+Card Name: FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D5DF610>
+---
+Card ID: 13
+Card Number: CH-106
+Card Name: Misprint FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D5DF8D0>
+---
+Card ID: 18
+Card Number: CH-106
+Card Name: FREAM
+Card Type: CardType.CHARACTER
+Character Details: None
+---
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000002408D5DF410>, <vcard_tracker.database.schema.Card object at 0x000002408D636550>, <vcard_tracker.database.schema.Card object at 0x000002408D636810>, <vcard_tracker.database.schema.Card object at 0x000002408D636B10>, <vcard_tracker.database.schema.Card object at 0x000002408D636ED0>, <vcard_tracker.database.schema.Card object at 0x000002408D5DF6D0>, <vcard_tracker.database.schema.Card object at 0x000002408D637690>, <vcard_tracker.database.schema.Card object at 0x000002408D637E90>, <vcard_tracker.database.schema.Card object at 0x000002408D648150>]
+
+Initializing get_dups_debug.txt log
+
+
+Duplicate numbers query result for number 'CH-106' (count '2'):
+Card ID: 1
+Card Number: CH-106
+Card Name: FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D67BB90>
+---
+Card ID: 13
+Card Number: CH-106
+Card Name: Misprint FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D67BE50>
+---
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000002408D67B990>, <vcard_tracker.database.schema.Card object at 0x000002408D6A23D0>, <vcard_tracker.database.schema.Card object at 0x000002408D6A2690>, <vcard_tracker.database.schema.Card object at 0x000002408D6A2990>, <vcard_tracker.database.schema.Card object at 0x000002408D6A2D50>, <vcard_tracker.database.schema.Card object at 0x000002408D67BC50>, <vcard_tracker.database.schema.Card object at 0x000002408D6A3510>, <vcard_tracker.database.schema.Card object at 0x000002408D6A3C10>, <vcard_tracker.database.schema.Card object at 0x000002408D6C02D0>, <vcard_tracker.database.schema.Card object at 0x000002408D6A34D0>, <vcard_tracker.database.schema.Card object at 0x000002408D6C07D0>]
+
+Initializing get_dups_debug.txt log
+
+
+Duplicate numbers query result for number 'CH-106' (count '2'):
+Card ID: 1
+Card Number: CH-106
+Card Name: FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D7A0F10>
+---
+Card ID: 13
+Card Number: CH-106
+Card Name: Misprint FREAM
+Card Type: CardType.CHARACTER
+Character Details: <vcard_tracker.database.schema.CharacterDetails object at 0x000002408D7A1990>
+---
+Character query result: [<vcard_tracker.database.schema.Card object at 0x000002408D7A0550>, <vcard_tracker.database.schema.Card object at 0x000002408D720FD0>, <vcard_tracker.database.schema.Card object at 0x000002408D7212D0>, <vcard_tracker.database.schema.Card object at 0x000002408D721650>, <vcard_tracker.database.schema.Card object at 0x000002408D721A10>, <vcard_tracker.database.schema.Card object at 0x000002408D7A1210>, <vcard_tracker.database.schema.Card object at 0x000002408D722110>, <vcard_tracker.database.schema.Card object at 0x000002408D722850>, <vcard_tracker.database.schema.Card object at 0x000002408D723190>, <vcard_tracker.database.schema.Card object at 0x000002408D722090>, <vcard_tracker.database.schema.Card object at 0x000002408D723990>]
+
