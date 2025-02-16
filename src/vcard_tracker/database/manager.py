@@ -30,7 +30,7 @@ import re
 import shutil
 from datetime import datetime as dt
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union, Any
 
 # SQLAlchemy imports
 from sqlalchemy import (
@@ -1025,14 +1025,13 @@ class DatabaseManager:
 
 
     # Check for duplicate entries
-    def get_duplicate_entries(self) -> Dict[str, List[Dict]]:
+    def get_duplicate_entries(self) -> Dict[str, List[Dict[str, Any]]]:
         """
         Finds multiple types of potential duplicates in the database
         Checks for duplicate card numbers, name inconsistencies, and element mismatches
 
         Returns:
-            Returns detailed information about found duplicates for investigation
-            Dict[str, List[Dict]]: Dictionary of duplicate types and their instances:
+            Dict[str, List[Dict[str, Any]]]: Dictionary of duplicate types and their instances
                 - duplicate_numbers: Cards with same number
                 - duplicate_names: Cards with same name (excluding variants)
                 - mismatched_elements: Cards with conflicting elements
@@ -1050,6 +1049,13 @@ class DatabaseManager:
         }
 
         with Session(self.engine) as session:
+            # First verify there is data to check
+            if session.scalar(
+                select(func.count())
+                .select_from(Card)
+            ) == 0:
+                return duplicates  # Return empty results if no cards exist
+
             # Check for duplicate card numbers
             number_count = (
                 select(Card.card_number, func.count(Card.id).label("count"))
@@ -1059,16 +1065,18 @@ class DatabaseManager:
 
             for number, count in session.execute(number_count):
                 cards = session.scalars(
-                    select(Card).where(Card.card_number == number)
+                    select(Card)
+                    .where(Card.card_number == number)
                 ).all()
-                duplicates["duplicate_numbers"].append({
-                    "card_number": number,
-                    "count": count,
-                    "cards": [
-                        {"id": c.id, "name": c.name, "type": c.card_type.name}
-                        for c in cards
-                    ]
-                })
+                if cards:  # Add null check
+                    duplicates["duplicate_numbers"].append({
+                        "card_number": number,
+                        "count": count,
+                        "cards": [
+                            {"id": c.id, "name": c.name, "type": c.card_type.name}
+                            for c in cards
+                        ]
+                    })
 
             # Check for name inconsistencies across variants
             # (excluding intentional variants like mascott/levels)
@@ -1081,7 +1089,8 @@ class DatabaseManager:
 
             for name, count in session.execute(stmt):
                 cards = session.scalars(
-                    select(Card).where(Card.name == name)
+                    select(Card)
+                    .where(Card.name == name)
                 ).all()
                 duplicates["duplicate_names"].append({
                     "name": name,
@@ -1104,7 +1113,9 @@ class DatabaseManager:
             for char in characters:
                 if char.name not in by_name:
                     by_name[char.name] = set()
-                by_name[char.name].add(char.character_details.element)
+                # Only add non-None elements
+                if char.character_details and char.character_details.element:
+                    by_name[char.name].add(char.character_details.element)
 
             # Record any with multiple elements
             for name, elements in by_name.items():
@@ -1116,12 +1127,12 @@ class DatabaseManager:
                     ).all()
                     duplicates["mismatched_elements"].append({
                         "name": name,
-                        "elements": [e.name for e in elements],
+                        "elements": [e.name for e in elements if e is not None],  # Add null check
                         "cards": [
                             {
                                 "id": c.id,
                                 "number": c.card_number,
-                                "element": c.character_details.element.name
+                                "element": c.character_details.element.name if c.character_details and c.character_details.element else None
                             }
                             for c in cards
                         ]
