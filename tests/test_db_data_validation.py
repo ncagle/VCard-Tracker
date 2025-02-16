@@ -184,7 +184,8 @@ def test_get_duplicate_entries_duplicate_numbers(populated_db):
             talent=original.talent,
             edition=original.edition,
             card_number=original.card_number,  # Duplicate number
-            illustrator=original.illustrator
+            illustrator=original.illustrator,
+            image_path=f"{original.card_type}/{original.card_number}.png"
         )
         session.add(duplicate)
         session.commit()
@@ -219,7 +220,8 @@ def test_get_duplicate_entries_name_inconsistencies(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-TEST1",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-TEST1.png"
         )
         base_card.character_details = CharacterDetails(
             power_level=8,
@@ -239,7 +241,8 @@ def test_get_duplicate_entries_name_inconsistencies(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-TEST2",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-TEST2.png"
         )
         variant.character_details = CharacterDetails(
             power_level=9,
@@ -282,7 +285,8 @@ def test_get_duplicate_entries_element_mismatches(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-ELEM1",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-ELEM1.png"
         )
         card1.character_details = CharacterDetails(
             power_level=8,
@@ -302,7 +306,8 @@ def test_get_duplicate_entries_element_mismatches(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-ELEM2",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-ELEM2.png"
         )
         card2.character_details = CharacterDetails(
             power_level=9,
@@ -373,7 +378,8 @@ def test_verify_database_integrity_missing_details(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-MISS1",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-MISS1.png"
         )
         session.add(card1)
 
@@ -384,7 +390,8 @@ def test_verify_database_integrity_missing_details(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="SP-MISS1",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/SP-MISS1.png"
         )
         session.add(card2)
         session.commit()
@@ -417,7 +424,8 @@ def test_verify_database_integrity_invalid_elements(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-ELEM1",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-ELEM1.png"
         )
         card.character_details = CharacterDetails(
             power_level=8,
@@ -494,7 +502,8 @@ def test_verify_database_integrity_constraint_violations(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-LVL10",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-LVL10.png"
         )
         card1.character_details = CharacterDetails(
             power_level=10,  # Level 10
@@ -517,7 +526,8 @@ def test_verify_database_integrity_constraint_violations(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-BOX1",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-BOX1.png"
         )
         card2.character_details = CharacterDetails(
             power_level=8,  # Invalid - Box toppers shouldn't have power level
@@ -538,7 +548,8 @@ def test_verify_database_integrity_constraint_violations(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-PWR1",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-PWR1.png"
         )
         card3.character_details = CharacterDetails(
             power_level=5,  # Invalid - Must be 1 or 8-10
@@ -638,7 +649,8 @@ def test_verify_database_integrity_element_counts(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="GD-EXTRA",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/GD-EXTRA.png"
         )
         extra_guardian.elemental_details = ElementalDetails(
             element=Element.FIRE  # Adding extra guardian for FIRE
@@ -677,7 +689,8 @@ def test_verify_database_integrity_multiple_issues(populated_db):
             talent="Test talent",
             edition="Test",
             card_number="CH-MULTI",
-            illustrator="Test Artist"
+            illustrator="Test Artist",
+            image_path=f"{CardType.CHARACTER}/CH-MULTI.png"
         )
         problem_card.character_details = CharacterDetails(
             power_level=10,  # Level 10
