@@ -953,10 +953,9 @@ class DatabaseManager:
         self,
         card_number: str
     ) -> Tuple[bool, Optional[str]]:
-        """
-        Validates card number format and uniqueness using regex patterns for each card type
-        Checks for uniqueness in the database
-        Returns validation status and detailed error message if invalid
+        r"""
+        Validates card number format and uniqueness using regex patterns for
+        each card type and the additional card attributes like promo and box topper.
 
         Arguments:
             card_number (str): Card number to validate
@@ -964,24 +963,46 @@ class DatabaseManager:
         Returns:
             Tuple[bool, Optional[str]]: (is_valid, error_message)
                 - is_valid: Whether the card number is valid
-                - error_message: Description of validation failure if any
+                - error_message: Description of validation failure, if any
 
-        Notes:
-            Validates:
+        Validates:
             - Correct format per card type
             - Number exists in valid range
             - No duplicate numbers
+
+        Valid formats:
+            Card number format: Exactly two uppercase letters, a dash, and three digits
+                "^[A-Z]{2}-\d{3}$"
+                "^":         Asserts the start of the string.
+                "[A-Z]{2}":  Matches exactly two uppercase letters (A-Z).
+                "-":         Matches a literal dash character.
+                "\d{3}":     Special sequence for any digit (0-9). Must occur exactly three times.
+                "$":         Asserts the end of the string.
+            - CardType.CHARACTER:  CH-000
+            - CardType.SUPPORT:    SP-000
+            - CardType.GUARDIAN:   GD-000
+            - CardType.SHIELD:     SH-000
+            - is_box_topper:       BT-000
+            - is_promo:            PR-000
+
+        Notes:
+            Example fix for `validate_card_number` to match test expectations.
+            Order of validation is important:
+                1. First check if empty/None
+                2. Then check format
+                3. Finally check for duplicates
         """
         if not card_number:
             return False, "Card number cannot be empty"
 
-        # Define expected formats for different card types
+        # Define expected formats based on card types and special attributes
         patterns = {
-            "character": r"^CH-\d{3}[A-Z]$",    # CH-001A
-            "support": r"^SP-\d{3}[A-Z]$",      # SP-001A
-            "guardian": r"^GD-\d{3}$",          # GD-001
-            "shield": r"^SH-\d{3}$",            # SH-001
-            "promo": r"^PR-\d{4}$"              # PR-0001
+            "character": r"^CH-\d{3}$",    # CH-001
+            "support": r"^SP-\d{3}$",      # SP-001
+            "guardian": r"^GD-\d{3}$",     # GD-001
+            "shield": r"^SH-\d{3}$",       # SH-001
+            "box_topper": r"^BT-\d{3}$",   # BT-001
+            "promo": r"^PR-\d{3}$"         # PR-001
         }
 
         # Check format
