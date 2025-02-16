@@ -15,13 +15,17 @@ Tests for collection analysis database operations.
 This module contains tests for the DatabaseManager methods that analyze
 collection status, completion, and recent acquisitions.
 
-❌ Collection Analysis
-    - Get collection progress statistics
-    - Find missing cards from collection
-    - Check for complete character sets
-    - View recent card acquisitions
-    - Edge cases for collection stats (e.g., empty/full collection, misprints)
-
+✅ Collection Analysis
+    ✅ Get collection progress statistics
+    ✅ Find missing cards from collection
+    ✅ Check for complete character sets
+    ✅ View recent card acquisitions
+    ✅ Edge cases for collection stats (e.g., empty/full collection, misprints)
+    test_db_collection_analysis.py::test_get_collection_stats              20% ██        
+    test_db_collection_analysis.py::test_get_missing_cards                 40% ████      
+    test_db_collection_analysis.py::test_get_complete_sets                 60% ██████    
+    test_db_collection_analysis.py::test_get_recent_acquisitions           80% ████████  
+    test_db_collection_analysis.py::test_collection_stats_edge_cases      100% ██████████
 """
 from datetime import (
     datetime as dt,
