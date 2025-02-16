@@ -54,6 +54,9 @@ from vcard_tracker.models.base import Element, CardType, Acquisition
 from vcard_tracker.database.manager import DatabaseManager
 
 
+EXPORT_DEBUG_INFO = False
+
+
 """
 ╔═══════════════════╗
 ║ Database Fixtures ║
@@ -92,8 +95,6 @@ def engine(test_db_url: str):
     engine = create_engine(test_db_url, echo=False)
 
     # Create database and tables
-    # if not database_exists(engine.url):  # remove?
-    #     create_database(engine.url)  # remove?
     Base.metadata.create_all(engine)
 
     yield engine
@@ -101,8 +102,6 @@ def engine(test_db_url: str):
     # Cleanup after all tests
     Base.metadata.drop_all(engine)
     engine.dispose()
-    # if database_exists(engine.url):  # remove?
-    #     drop_database(engine.url)  # remove?
 
     try:
         if os.path.exists(db_file):
@@ -198,6 +197,15 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
         - Returns manager ready for testing
     """
     with Session(db_manager.engine) as session:
+        if EXPORT_DEBUG_INFO:
+            # DEBUG: Check existing data
+            existing_cards = session.query(Card).all()
+            os.makedirs("tests/debug", exist_ok=True)
+            with open("tests/debug/db_population_debug.txt", "w", encoding="utf-8") as f:
+                _ = f.write(f"\nBefore loading - Found {len(existing_cards)} existing cards\n")
+                for card in existing_cards:
+                    _ = f.write(f"  {card.card_number}: {card.name}\n")
+
         # Load character cards
         for variant_name, card_data in sample_cards["characters"].items():
             card = Card(
@@ -315,6 +323,15 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
                 )
 
             session.add(card)
+
+        if EXPORT_DEBUG_INFO:
+            # DEBUG: Check final state
+            final_cards = session.query(Card).all()
+            os.makedirs("tests/debug", exist_ok=True)
+            with open("tests/debug/db_population_debug.txt", "a", encoding="utf-8") as f:
+                _ = f.write(f"\n\nAfter loading - Found {len(final_cards)} cards\n")
+                for card in final_cards:
+                    _ = f.write(f"  {card.card_number}: {card.name}\n")
 
         # Commit all cards to database
         session.commit()
