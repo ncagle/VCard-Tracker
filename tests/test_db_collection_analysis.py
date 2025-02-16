@@ -47,6 +47,19 @@ EXPORT_DEBUG_INFO = False
 if EXPORT_DEBUG_INFO: os.makedirs("tests/debug", exist_ok=True)
 
 
+# DEBUG: Helper function to deduplicate cards for testing
+def deduplicate_cards(session: Session, card_numbers: List[str]) -> None:
+    """Remove duplicate cards with the same card number."""
+    for card_number in card_numbers:
+        duplicates = session.query(Card)\
+            .filter_by(card_number=card_number)\
+            .all()
+        if len(duplicates) > 1:
+            for card in duplicates[1:]:
+                session.delete(card)
+    session.commit()
+
+
 @pytest.mark.database
 def test_get_collection_stats(db_session: Session, populated_db: DatabaseManager):
     """
@@ -63,6 +76,13 @@ def test_get_collection_stats(db_session: Session, populated_db: DatabaseManager
     _ = populated_db.update_collection_status("CH-001A", True, is_holo=False)  # Regular
     _ = populated_db.update_collection_status("CH-001B", True, is_holo=True)   # Holo
     _ = populated_db.update_collection_status("SP-001C", True, is_holo=True)   # Secret rare
+    # test_card_numbers = ["106", "107", "SP-003"]  # Cards we'll test with
+    # First clear any existing collection status
+    with Session(populated_db.engine) as session:
+        # deduplicate_cards(session, test_card_numbers)  # DEBUG: Deduplicate cards
+        _ = session.query(CollectionStatus).delete()
+        session.commit()
+
 
     stats = populated_db.get_collection_stats()
 
@@ -140,6 +160,13 @@ def test_get_missing_cards(db_session: Session, populated_db: DatabaseManager):
             for card in updated_missing:
                 _ = f.write(f"  {card.card_number}: {card.name}\n")
 
+
+    # test_card_numbers = ["106", "SH-001"]  # Cards we'll test with
+    # First clear any existing collection status
+    with Session(populated_db.engine) as session:
+        # deduplicate_cards(session, test_card_numbers)  # DEBUG: Deduplicate cards
+        _ = session.query(CollectionStatus).delete()
+        session.commit()
 
     # Initial check - all cards should be missing
     initial_missing = populated_db.get_missing_cards()
@@ -231,6 +258,13 @@ def test_get_complete_sets(db_session: Session, populated_db: DatabaseManager):
             _ = f.write(f"\n\nCollection status records: {collection_count}")
 
 
+    # test_card_numbers = ["106", "107", "108", "BT-001"]  # Cards we'll test with - FREAM variants
+    # First clear any existing collection status
+    with Session(populated_db.engine) as session:
+        # deduplicate_cards(session, test_card_numbers)  # DEBUG: Deduplicate cards
+        _ = session.query(CollectionStatus).delete()
+        session.commit()
+
     # Initially should have no complete sets
     initial_complete = populated_db.get_complete_sets()
     assert len(initial_complete) == 0
@@ -289,6 +323,12 @@ def test_get_recent_acquisitions(db_session: Session, populated_db: DatabaseMana
         dt.now() - timedelta(days=3),
         dt.now() - timedelta(days=1)
     ]
+    # test_card_numbers = ["106", "SP-001", "GD-002"]  # Cards we'll test with
+    # First clear any existing collection status
+    with Session(populated_db.engine) as session:
+        # deduplicate_cards(session, test_card_numbers)  # DEBUG: Deduplicate cards
+        _ = session.query(CollectionStatus).delete()
+        session.commit()
 
     cards = [
         ("CH-001A", dates[0]),
@@ -372,7 +412,9 @@ def test_collection_stats_edge_cases(db_session: Session, populated_db: Database
 
     # Clear any existing collection status
     with Session(populated_db.engine) as session:
-        _ = session.query(populated_db.CollectionStatus).delete()
+        # unique_card_numbers = session.query(Card.card_number).distinct()  # DEBUG: Deduplicate cards
+        # deduplicate_cards(session, unique_card_numbers)  # All cards  # DEBUG: Deduplicate cards
+        _ = session.query(CollectionStatus).delete()
         session.commit()
 
     # Verify empty collection stats
