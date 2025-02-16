@@ -440,42 +440,48 @@ def test_collection_stats_edge_cases(db_session: Session, populated_db: Database
     assert stats["completion_percentage"] == 0
     assert all(count == 0 for count in stats["collected_by_type"].values())
 
-    # Collect everything
-    all_cards = populated_db.get_cards_by_type(CardType.CHARACTER)
-    for card in all_cards:
-        _ = populated_db.update_collection_status(
-            card.card_number,
-            is_collected=True,
-            is_holo=False
-        )
+    # Get all character cards and collect them
+    with Session(populated_db.engine) as session:
+        character_cards = session.query(Card)\
+            .filter_by(card_type=CardType.CHARACTER)\
+            .all()
+
+        for card in character_cards:
+            _ = populated_db.update_collection_status(
+                card.card_number,
+                is_collected=True,
+                is_holo=False
+            )
 
     stats = populated_db.get_collection_stats()
-    assert stats["total_collected"] == len(all_cards)
+    assert stats["total_collected"] == len(character_cards)
+    assert stats["collected_by_type"][CardType.CHARACTER] == len(character_cards)
+
+    # -----------------------------------
 
     # Test misprint tracking
     # First mark the card as collected
     _ = populated_db.update_collection_status(
-        "CH-999",  # Misprint card from sample data
+        "MP-107",  # Misprint FREAM from sample data
         is_collected=True
     )
-
     # Then update its condition
     _ = populated_db.update_card_condition(
-        "CH-999",
+        "MP-107",
         is_misprint=True
     )
 
     # Verify misprint is tracked correctly
     with Session(populated_db.engine) as session:
-        misprint_card = session.query(populated_db.Card)\
-            .filter_by(card_number="CH-999")\
+        misprint_card = session.query(Card)\
+            .filter_by(card_number="MP-107")\
             .first()
         assert misprint_card.collection_status.is_collected
         assert misprint_card.collection_status.is_misprint
 
     # Verify misprint is counted correctly
     stats = populated_db.get_collection_stats()
-    assert "CH-999" in [card.card_number for card in populated_db.get_collected_cards()]
+    assert "MP-107" in [card.card_number for card in populated_db.get_collected_cards()]
 
     # DEBUG: Manually override collection status for testing purposes
     # _manual_override_collection_status()
