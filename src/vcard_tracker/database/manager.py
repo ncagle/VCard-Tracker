@@ -760,6 +760,7 @@ class DatabaseManager:
 
         Returns:
             bool: True if all updates successful, False if any failed
+                Also returns False if any requested card numbers are not found in the database
         """
         with Session(self.engine) as session:
             try:
@@ -767,6 +768,11 @@ class DatabaseManager:
                 cards = session.scalars(
                     select(Card).where(Card.card_number.in_(card_numbers))
                 ).all()
+
+                # Verify we found all requested cards
+                found_numbers = {card.card_number for card in cards}
+                if len(found_numbers) != len(card_numbers):
+                    return False  # Not all cards were found
 
                 for card in cards:
                     if not card.collection_status:
