@@ -39,40 +39,69 @@ from vcard_tracker.database.schema import (
 
 
 def test_validate_card_number_valid_formats(populated_db):
-    """
+    r"""
     Test card number validation with valid formats for each card type.
 
     Arguments:
         populated_db: Fixture providing DatabaseManager with sample data
 
-    Notes:
-        Tests valid formats:
-        - Character cards: CH-001A
-        - Support cards: SP-001A
-        - Guardian cards: GD-001
-        - Shield cards: SH-001
-        - Promo cards: PR-0001
+    Valid formats:
+        Card number format: Exactly two uppercase letters, a dash, and three digits
+            "^[A-Z]{2}-\d{3}$"
+            "^":         Asserts the start of the string.
+            "[A-Z]{2}":  Matches exactly two uppercase letters (A-Z).
+            "-":         Matches a literal dash character.
+            "\d{3}":     Special sequence for any digit (0-9). Must occur exactly three times.
+            "$":         Asserts the end of the string.
+        - CardType.CHARACTER: CH-000
+        - CardType.SUPPORT: SP-000
+        - CardType.GUARDIAN: GD-000
+        - CardType.SHIELD: SH-000
+        - is_box_topper: BT-000
+        - is_promo: PR-000
     """
     # Test valid formats for each card type
     valid_numbers = [
-        "CH-001A",  # Character
-        "SP-001A",  # Support
-        "GD-001",   # Guardian
-        "SH-001",   # Shield
-        "PR-0001"   # Promo
+        "CH-001",  # Character
+        "SP-001",  # Support
+        "GD-001",  # Guardian
+        "SH-001",  # Shield
+        "BT-001",  # Box Topper
+        "PR-001"   # Promo
     ]
 
-    # Clear any existing cards with these numbers
     with Session(populated_db.engine) as session:
-        for number in valid_numbers:
-            card = session.scalar(
-                select(Card).where(Card.card_number == number)
-            )
-            if card:
-                session.delete(card)
-        session.commit()
+        # Disable autoflush while we clean up test data
+        with session.no_autoflush:
+            # Clear any existing cards with these numbers
+            for number in valid_numbers:
+                # Get all associated records
+                card = session.scalar(
+                    select(Card)
+                    .options(
+                        joinedload(Card.character_details),
+                        joinedload(Card.support_details),
+                        joinedload(Card.elemental_details),
+                        joinedload(Card.collection_status)
+                    )
+                    .where(Card.card_number == number)
+                )
+                if card:
+                    # Delete details first
+                    if card.character_details:
+                        session.delete(card.character_details)
+                    if card.support_details:
+                        session.delete(card.support_details)
+                    if card.elemental_details:
+                        session.delete(card.elemental_details)
+                    if card.collection_status:
+                        session.delete(card.collection_status)
+                    # Then delete the card
+                    session.delete(card)
 
-    # Test each format
+            session.commit()
+
+    # Test each valid card number
     for number in valid_numbers:
         valid, error = populated_db.validate_card_number(number)
         assert valid is True
@@ -80,14 +109,28 @@ def test_validate_card_number_valid_formats(populated_db):
 
 
 def test_validate_card_number_invalid_formats(populated_db):
-    """
+    r"""
     Test card number validation with invalid formats.
 
     Arguments:
         populated_db: Fixture providing DatabaseManager with sample data
 
-    Notes:
-        Tests invalid formats:
+    Valid formats:
+        Card number format: Exactly two uppercase letters, a dash, and three digits
+            "^[A-Z]{2}-\d{3}$"
+            "^":         Asserts the start of the string.
+            "[A-Z]{2}":  Matches exactly two uppercase letters (A-Z).
+            "-":         Matches a literal dash character.
+            "\d{3}":     Special sequence for any digit (0-9). Must occur exactly three times.
+            "$":         Asserts the end of the string.
+        - CardType.CHARACTER: CH-000
+        - CardType.SUPPORT: SP-000
+        - CardType.GUARDIAN: GD-000
+        - CardType.SHIELD: SH-000
+        - is_box_topper: BT-000
+        - is_promo: PR-000
+
+    Tests invalid formats:
         - Missing prefix
         - Wrong prefix
         - Invalid number format
@@ -95,23 +138,77 @@ def test_validate_card_number_invalid_formats(populated_db):
         - Extra characters
     """
     invalid_numbers = [
-        "001A",        # Missing prefix
-        "XX-001A",     # Wrong prefix
-        "CH-A001",     # Wrong number format
-        "CH-001",      # Missing letter for character card
-        "GD-001A",     # Extra letter for guardian card
-        "PR-001",      # Wrong promo format
-        "CH-0001A",    # Too many digits
-        "CH001A",      # Missing hyphen
+        "001",         # Missing prefix
+        "XX-001",      # Invalid prefix
+        "MP-001",      # Invalid prefix (misprints use original card number)
+        "CH-A01",      # Letters in number portion
+        "CH001",       # Missing hyphen
+        "CH-0001",     # Too many digits
+        "CH-01",       # Too few digits
+        "ch-001",      # Lowercase prefix
+        "CH_001",      # Wrong separator
+        "C1-001",      # Number in prefix
+        "CHR-001",     # Too many prefix letters
+        "C-001",       # Too few prefix letters
+        "CH-   ",      # Prefix only with whitespace for digits
+        "  -001",      # Digits only with whitespace for prefix
+        "CH-001 ",     # Trailing whitespace
+        " CH-001",     # Leading whitespace
+        "CH- 001",     # Separator with internal whitespace
+        "CH-00 1",     # Digits with internal whitespace
+        "C H-001",     # Prefix with internal whitespace        
+        "      ",      # Whitespace-only string, correct length
+        "   ",         # Whitespace-only string, incorrect length
+    ]
+    empty_values = [
         "",            # Empty string
         None,          # None value
     ]
 
+    with Session(populated_db.engine) as session:
+        # Disable autoflush while we clean up test data
+        with session.no_autoflush:
+            # Clear any existing cards with these numbers
+            for number in invalid_numbers + empty_values:
+                # Get all associated records
+                card = session.scalar(
+                    select(Card)
+                    .options(
+                        joinedload(Card.character_details),
+                        joinedload(Card.support_details),
+                        joinedload(Card.elemental_details),
+                        joinedload(Card.collection_status)
+                    )
+                    .where(Card.card_number == number)
+                )
+                if card:
+                    # Delete details first
+                    if card.character_details:
+                        session.delete(card.character_details)
+                    if card.support_details:
+                        session.delete(card.support_details)
+                    if card.elemental_details:
+                        session.delete(card.elemental_details)
+                    if card.collection_status:
+                        session.delete(card.collection_status)
+                    # Then delete the card
+                    session.delete(card)
+
+            session.commit()
+
+    # Test each invalid card number
     for number in invalid_numbers:
         valid, error = populated_db.validate_card_number(number)
         assert valid is False
         assert error is not None
         assert "Invalid card number format" in error
+
+    # Test empty/None values separately
+    for number in empty_values:
+        valid, error = populated_db.validate_card_number(number)
+        assert valid is False
+        assert error is not None
+        assert "Card number cannot be empty" in error
 
 
 def test_validate_card_number_duplicates(populated_db):
@@ -121,8 +218,7 @@ def test_validate_card_number_duplicates(populated_db):
     Arguments:
         populated_db: Fixture providing DatabaseManager with sample data
 
-    Notes:
-        Verifies that:
+    Verifies that:
         - Existing card numbers are rejected
         - Error message indicates duplicate
     """
@@ -136,7 +232,7 @@ def test_validate_card_number_duplicates(populated_db):
     valid, error = populated_db.validate_card_number(existing_number)
     assert valid is False
     assert error is not None
-    assert "already exists" in error
+    assert "Card number already exists" in error
 
 
 def test_get_duplicate_entries_clean_db(populated_db):
