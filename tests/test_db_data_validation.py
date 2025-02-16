@@ -26,8 +26,9 @@ from typing import Dict, List
 from datetime import datetime as dt
 
 import pytest
+# pytest.set_trace()  # DEBUG
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from vcard_tracker.models.base import Element, CardType
 from vcard_tracker.database.schema import (
@@ -271,7 +272,6 @@ def test_get_duplicate_entries_duplicate_numbers(populated_db):
     # Create a duplicate card
     with Session(populated_db.engine) as session:
         # Get an existing card to duplicate
-        # original = session.scalar(select(Card))
         original = session.scalar(
             select(Card)
             .options(
@@ -367,8 +367,10 @@ def test_get_duplicate_entries_name_inconsistencies(populated_db):
         assert len(duplicates["duplicate_names"]) > 0
 
         # Verify duplicate info
-        dup_info = duplicates["duplicate_names"][0]
-        assert "Test Character" in dup_info["name"]
+        dup_info = next(
+            d for d in duplicates["duplicate_names"]
+            if "Test Character" in d["name"]
+        )
         assert len(dup_info["cards"]) >= 2
 
 
@@ -434,8 +436,10 @@ def test_get_duplicate_entries_element_mismatches(populated_db):
         assert len(duplicates["mismatched_elements"]) > 0
 
         # Verify mismatch info
-        mismatch = duplicates["mismatched_elements"][0]
-        assert mismatch["name"] == "Element Test"
+        mismatch = next(
+            m for m in duplicates["mismatched_elements"]
+            if m["name"] == "Element Test"
+        )
         assert len(mismatch["elements"]) == 2
         assert "FIRE" in mismatch["elements"]
         assert "WATER" in mismatch["elements"]
