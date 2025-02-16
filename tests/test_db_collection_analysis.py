@@ -483,6 +483,43 @@ def test_collection_stats_edge_cases(db_session: Session, populated_db: Database
     stats = populated_db.get_collection_stats()
     assert "MP-107" in [card.card_number for card in populated_db.get_collected_cards()]
 
+    # -----------------------------------
+
+    # Test promo card tracking
+    _ = populated_db.update_collection_status(
+        "PR-069",  # NSFW FREAM promo
+        is_collected=True
+    )
+    _ = populated_db.update_collection_status(
+        "PR-002",  # Event Healer promo
+        is_collected=True
+    )
+
     # DEBUG: Manually override collection status for testing purposes
     # _manual_override_collection_status()
 
+    # Verify promo cards are tracked correctly
+    with Session(populated_db.engine) as session:
+        promo_cards = session.query(Card)\
+            .filter(Card.card_number.like("PR-%"))\
+            .all()
+
+        if EXPORT_DEBUG_INFO:
+            _create_promo_debug(promo_cards)
+
+        # Verify the expected number of promos was found
+        assert len(promo_cards) == 2
+
+        # Verify they're marked as promos and collected
+        for card in promo_cards:
+            assert card.collection_status.is_promo
+            assert card.collection_status.is_collected
+            assert card.collection_status.is_holo  # Promos are always holo regardless of input
+
+    # Verify promos are counted correctly in stats
+    stats = populated_db.get_collection_stats()
+    collected_cards = populated_db.get_collected_cards()
+    collected_numbers = [card.card_number for card in collected_cards]
+    assert "PR-069" in collected_numbers
+    assert "PR-002" in collected_numbers
+    assert all(card.collection_status.is_holo for card in collected_cards if card.card_number.startswith("PR-"))

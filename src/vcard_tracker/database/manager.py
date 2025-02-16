@@ -485,27 +485,32 @@ class DatabaseManager:
     # Update status of card in collection
     def update_collection_status(
         self,
-        card_number: str, 
+        card_number: str,
         is_collected: bool,
-        is_holo: bool = False,
+        is_holo: Optional[bool] = None,
         acquisition: Optional[Acquisition] = None,
         notes: Optional[str] = None
     ) -> bool:
         """
-        Updates multiple collection attributes at once
+        Updates collection attributes while preserving existing flags
         (collected status, holo status, acquisition method, notes)
-        Creates new CollectionStatus record if one doesn't exist for the card
-        Returns boolean indicating whether update was successful
+        Creates new CollectionStatus record if one doesn't exist
+        Maintains special card properties (e.g., promos are always holo)
 
         Arguments:
             card_number (str): Card number to update
             is_collected (bool): Whether card is collected
-            is_holo (bool): Whether card is holographic
-            acquisition (Acquisition): How card was acquired (enum value)
-            notes (str): Additional notes
+            is_holo (Optional[bool]): Whether card is holographic
+            acquisition (Optional[Acquisition]): How card was acquired (enum value)
+            notes (Optional[str]): Additional notes
 
         Returns:
             bool: True if update successful, False otherwise
+
+        Notes:
+            - Only updates specified attributes
+            - Preserves existing flags (is_promo, is_misprint)
+            - Enforces domain rules (promos always holo)
         """
         with Session(self.engine) as session:
             card = session.scalar(
@@ -516,15 +521,36 @@ class DatabaseManager:
             if not card:
                 return False
 
+            # Create new status if none exists
             if not card.collection_status:
                 card.collection_status = CollectionStatus()
 
+            # Always update collection status
             card.collection_status.is_collected = is_collected
-            card.collection_status.is_holo = is_holo
-            if acquisition is not None:  # Only update if explicitly provided
+
+            # Handle holo status
+            if is_holo is not None:
+                # If card is promo, `is_holo` will be overwritten later regardless
+                card.collection_status.is_holo = is_holo
+
+            # Optional updates - only if explicitly provided
+            if acquisition is not None:
                 card.collection_status.acquisition = acquisition
-            if notes:
-                card.collection_status.notes = notes
+            if notes is not None:
+                # Append to existing notes if any
+                if card.collection_status.notes:
+                    card.collection_status.notes += f"\n{notes}"
+                else:
+                    card.collection_status.notes = notes
+
+            # Set acquisition date if being collected for first time
+            if is_collected and not card.collection_status.date_acquired:
+                card.collection_status.date_acquired = dt.now()
+
+            # Preserve promo status for promo cards and always set holo to True regardless of input
+            if card.card_number.startswith("PR-"):
+                card.collection_status.is_promo = True
+                card.collection_status.is_holo = True
 
             session.commit()
             return True
@@ -637,6 +663,7 @@ class DatabaseManager:
             )
 
 
+    # TODO: Make sure mascot cards have attribute linking them to their vtubers as part of full set
     # Check for complete character sets
     def get_complete_sets(self) -> List[str]:
         """

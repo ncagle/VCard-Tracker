@@ -324,6 +324,44 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
 
             session.add(card)
 
+        # Load promo cards
+        for variant_name, card_data in sample_cards["promo"].items():
+            card = Card(
+                name=card_data["name"],
+                card_type=CardType[card_data["card_type"]],
+                talent=card_data["talent"],
+                edition="First",
+                card_number=card_data["card_number"],
+                illustrator=card_data["illustrator"],
+                image_path=f"promo/{card_data['card_number']}.png"
+            )
+
+            # Add collection status with promo flag
+            card.collection_status = CollectionStatus(
+                is_promo=True,
+                is_holo=True  # Promos are always holo
+            )
+
+            # Add type-specific details based on card type
+            if card_data["card_type"] == "CHARACTER":
+                card.character_details = CharacterDetails(
+                    power_level=card_data["power_level"],
+                    element=Element[card_data["element"]],
+                    age=card_data["age"],
+                    height=card_data["height"],
+                    weight=card_data["weight"],
+                    elemental_strength=Element[card_data["elemental_strength"]],
+                    elemental_weakness=Element[card_data["elemental_weakness"]],
+                    is_box_topper=card_data.get("is_box_topper", False),
+                    is_mascott=card_data.get("is_mascott", False)
+                )
+            elif card_data["card_type"] == "SUPPORT":
+                card.support_details = SupportDetails(
+                    is_secret_rare=card_data.get("is_secret_rare", False)
+                )
+
+            session.add(card)
+
         if EXPORT_DEBUG_INFO:
             # DEBUG: Check final state
             final_cards = session.query(Card).all()
