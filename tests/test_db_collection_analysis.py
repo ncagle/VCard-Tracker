@@ -27,7 +27,9 @@ from datetime import (
     datetime as dt,
     timedelta
 )
-from typing import List
+from typing import List, Tuple
+from pathlib import Path
+import os
 
 import pytest
 from sqlalchemy.orm import Session
@@ -37,7 +39,12 @@ from vcard_tracker.models.base import (
     CardType,
     Acquisition
 )
+from vcard_tracker.database.schema import Card, CollectionStatus
 from vcard_tracker.database.manager import DatabaseManager
+
+
+EXPORT_DEBUG_INFO = False
+if EXPORT_DEBUG_INFO: os.makedirs("tests/debug", exist_ok=True)
 
 
 @pytest.mark.database
@@ -83,7 +90,58 @@ def test_get_missing_cards(db_session: Session, populated_db: DatabaseManager):
         - Handles both NULL and False collection status
         - Updates when cards are collected
     """
-    # Get initial missing cards count
+    # Debug collection status before updating missing cards
+    def _create_missing_cards_debug_before():
+        with Session(populated_db.engine) as session:
+            # Check what cards we have
+            all_cards = session.query(Card).all()
+
+            # Check collection status
+            collected = session.query(Card)\
+                .join(CollectionStatus)\
+                .filter(CollectionStatus.is_collected == True)\
+                .all()
+
+            # Check specific card
+            card_001 = session.query(Card)\
+                .filter_by(card_number="SH-001")\
+                .first()
+            card_001_status = session.query(CollectionStatus)\
+                .filter_by(card_id=card_001.id if card_001 else None)\
+                .first() if card_001 else None
+
+            with open("tests/debug/missing_cards_debug.txt", "w", encoding="utf-8") as f:
+                _ = f.write(f"Total cards in database: {len(all_cards)}\n")
+                _ = f.write("Card numbers in database:\n")
+                for card in all_cards:
+                    _ = f.write(f"  {card.card_number}: {card.name}\n")
+
+                _ = f.write(f"\nTotal collected cards: {len(collected)}\n")
+                _ = f.write("Collected card numbers:\n")
+                for card in collected:
+                    _ = f.write(f"  {card.card_number}: {card.name}\n")
+
+                _ = f.write("\nCard SH-001 details:\n")
+                if card_001:
+                    _ = f.write("  Found in database: Yes\n")
+                    _ = f.write(f"  Name: {card_001.name}\n")
+                    _ = f.write(f"  Has collection status: {card_001_status is not None}\n")
+                    if card_001_status:
+                        _ = f.write(f"  Is collected: {card_001_status.is_collected}\n")
+                else:
+                    _ = f.write("  Not found in database\n")
+
+
+    # Debug collection status after updating missing cards
+    def _create_missing_cards_debug_after(updated_missing: List[Card]):
+        with open("tests/debug/missing_cards_debug.txt", "a", encoding="utf-8") as f:
+            _ = f.write(f"\nMissing cards count: {len(updated_missing)}\n")
+            _ = f.write("Missing card numbers:\n")
+            for card in updated_missing:
+                _ = f.write(f"  {card.card_number}: {card.name}\n")
+
+
+    # Initial check - all cards should be missing
     initial_missing = populated_db.get_missing_cards()
     initial_count = len(initial_missing)
 
@@ -91,11 +149,16 @@ def test_get_missing_cards(db_session: Session, populated_db: DatabaseManager):
     _ = populated_db.update_collection_status("CH-001A", True)
     _ = populated_db.update_collection_status("SP-001A", True)
 
+    if EXPORT_DEBUG_INFO:
+        _create_missing_cards_debug_before()
+
     # Get updated missing cards
     updated_missing = populated_db.get_missing_cards()
 
     # Verify counts
     assert len(updated_missing) == initial_count - 2
+    if EXPORT_DEBUG_INFO:
+        _create_missing_cards_debug_after(updated_missing)
 
     # Verify collected cards aren't in missing list
     missing_numbers = [card.card_number for card in updated_missing]
@@ -113,6 +176,61 @@ def test_get_complete_sets(db_session: Session, populated_db: DatabaseManager):
         - Handles different card variants (mascot, levels, box topper)
         - Updates when sets become complete
     """
+    # Debug card sets information and write info to file
+    def _create_sets_debug(fream_cards: List[Card], collected_cards: List[Card], complete_sets: List[str]):
+        with open("tests/debug/sets_debug.txt", "w", encoding="utf-8") as f:
+            _ = f.write(f"Total FREAM cards: {len(fream_cards)}\n")
+            _ = f.write("FREAM cards in database:\n")
+            for card in fream_cards:
+                collected_status = bool(card.collection_status
+                                        and card.collection_status.is_collected)
+                _ = f.write(f"  {card.card_number}: {card.name} (collected: {collected_status})\n")
+            _ = f.write(f"\nCollected FREAM cards: {len(collected_cards)}\n")
+            _ = f.write("Collected cards:\n")
+            for card in collected_cards:
+                _ = f.write(f"  {card.card_number}: {card.name}\n")
+            _ = f.write(f"\nComplete sets found: {complete_sets}\n")
+
+
+    # Debug query information and write info to file
+    def _create_query_debug(session: Session, fream_cards: List[Card],):
+        with open("tests/debug/query_debug.txt", "w", encoding="utf-8") as f:
+            _ = f.write("SQL Query:\n")
+            sql_query = session.query(Card)\
+                .filter(Card.name == "FREAM")
+            _ = f.write(str(sql_query))
+
+            # Check if we're getting duplicate rows from the query
+            distinct_card_numbers = session.query(Card.card_number)\
+                .filter(Card.name == "FREAM")\
+                .distinct()\
+                .all()
+            _ = f.write(f"\n\nDistinct card numbers: {len(distinct_card_numbers)}")
+            _ = f.write("\nCard numbers:\n")
+            for num in distinct_card_numbers:
+                _ = f.write(f"  {num[0]}\n")
+
+            all_count = session.query(Card)\
+                .filter(Card.name == "FREAM")\
+                .count()
+            _ = f.write(f"\nTotal rows returned: {all_count}")
+
+            # Check the joins
+            _ = f.write("\n\nJoined tables info:")
+            for card in fream_cards:
+                _ = f.write(f"\nCard {card.card_number}:")
+                _ = f.write(f"\n  Collection Status: {card.collection_status}")
+                if hasattr(card, "character_details"):
+                    _ = f.write(f"\n  Character Details: {card.character_details}")
+
+            # Check collection status query
+            collection_count = session.query(CollectionStatus)\
+                .join(Card)\
+                .filter(Card.name == "FREAM")\
+                .count()
+            _ = f.write(f"\n\nCollection status records: {collection_count}")
+
+
     # Initially should have no complete sets
     initial_complete = populated_db.get_complete_sets()
     assert len(initial_complete) == 0
@@ -132,6 +250,21 @@ def test_get_complete_sets(db_session: Session, populated_db: DatabaseManager):
     # Check complete sets
     complete_sets = populated_db.get_complete_sets()
     assert "Flame Knight" in complete_sets
+
+    if EXPORT_DEBUG_INFO:
+        with Session(populated_db.engine) as session:
+            # Debug print to see what's happening
+            fream_cards = session.query(Card)\
+                .filter(Card.name == "FREAM")\
+                .all()
+            collected_cards = [c for c in fream_cards if c.collection_status
+                               and c.collection_status.is_collected]
+
+            # Debug card sets information and write info to file
+            _create_sets_debug(fream_cards, collected_cards, complete_sets)
+            # Debug query information and write info to file
+            _create_query_debug(session, fream_cards)
+
     assert len(complete_sets) == 1
 
     # Verify partial sets aren't included
@@ -200,6 +333,43 @@ def test_collection_stats_edge_cases(db_session: Session, populated_db: Database
         - Promo cards
         - Misprints
     """
+    # Manually override collection status for testing purposes
+    def _manual_override_collection_status():
+        # BUG: Updating the collection status is overwriting existing information,
+        # such as the is_holo and is_promo flags
+        # Since `update_collection_status()` overwrites the existing status,
+        # the is_promo flag has to be set after collection
+        # FIXED: Updated `update_collection_status()` to preserve existing attributes
+        # unless otherwise specified
+        with Session(populated_db.engine) as session:
+            for card_number in ["PR-069", "PR-002"]:
+                card = session.query(Card)\
+                    .filter_by(card_number=card_number)\
+                    .first()
+                if not card.collection_status:
+                    card.collection_status = CollectionStatus()
+                card.collection_status.is_promo = True
+                card.collection_status.is_holo = True
+            session.commit()
+
+
+    def _create_promo_debug(promo_cards: List[Card]):
+        with open("tests/debug/promo_debug.txt", "w", encoding="utf-8") as f:
+            _ = f.write(f"Found {len(promo_cards)} promo cards\n\n")
+            for card in promo_cards:
+                _ = f.write(f"Card {card.card_number}:\n")
+                _ = f.write(f"  Name: {card.name}\n")
+                _ = f.write(f"  Type: {card.card_type}\n")
+                if card.collection_status:
+                    _ = f.write("  Collection Status:\n")
+                    _ = f.write(f"    is_promo: {card.collection_status.is_promo}\n")
+                    _ = f.write(f"    is_holo: {card.collection_status.is_holo}\n")
+                    _ = f.write(f"    is_collected: {card.collection_status.is_collected}\n")
+                else:
+                    _ = f.write("  No collection status found\n")
+                _ = f.write("\n")
+
+
     # Clear any existing collection status
     with Session(populated_db.engine) as session:
         _ = session.query(populated_db.CollectionStatus).delete()
@@ -247,3 +417,7 @@ def test_collection_stats_edge_cases(db_session: Session, populated_db: Database
     # Verify misprint is counted correctly
     stats = populated_db.get_collection_stats()
     assert "CH-999" in [card.card_number for card in populated_db.get_collected_cards()]
+
+    # DEBUG: Manually override collection status for testing purposes
+    # _manual_override_collection_status()
+
