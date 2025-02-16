@@ -70,7 +70,10 @@ def test_bulk_update_collection_success(populated_db):
     # Verify updates
     with Session(populated_db.engine) as session:
         for number in card_numbers:
-            card = session.query(Card).filter(Card.card_number == number).first()
+            card = session.query(Card)\
+                .filter(Card.card_number == number)\
+                .first()
+
             assert card.collection_status is not None
             assert card.collection_status.is_collected is True
             assert card.collection_status.date_acquired is not None
@@ -98,7 +101,10 @@ def test_bulk_update_collection_invalid_cards(populated_db):
     # Verify no changes were made
     with Session(populated_db.engine) as session:
         for number in card_numbers:
-            card = session.query(Card).filter(Card.card_number == number).first()
+            card = session.query(Card)\
+                .filter(Card.card_number == number)\
+                .first()
+
             assert card is None
 
 
@@ -126,7 +132,10 @@ def test_add_card_note_new(populated_db):
 
     # Verify note was added
     with Session(populated_db.engine) as session:
-        card = session.query(Card).filter(Card.card_number == card_number).first()
+        card = session.query(Card)\
+            .filter(Card.card_number == card_number)\
+            .first()
+
         assert card.collection_status is not None
         assert note in card.collection_status.notes
         assert "[" in card.collection_status.notes  # Has timestamp
@@ -160,7 +169,10 @@ def test_add_card_note_append(populated_db):
 
     # Verify both notes exist
     with Session(populated_db.engine) as session:
-        card = session.query(Card).filter(Card.card_number == card_number).first()
+        card = session.query(Card)\
+            .filter(Card.card_number == card_number)\
+            .first()
+
         assert first_note in card.collection_status.notes
         assert second_note in card.collection_status.notes
         assert card.collection_status.notes.count("[") == 2  # Two timestamps
@@ -204,7 +216,10 @@ def test_update_card_condition_new(populated_db):
 
     # Verify condition was updated
     with Session(populated_db.engine) as session:
-        card = session.query(Card).filter(Card.card_number == card_number).first()
+        card = session.query(Card)\
+            .filter(Card.card_number == card_number)\
+            .first()
+
         assert card.collection_status is not None
         assert card.collection_status.is_misprint is True
 
@@ -238,7 +253,10 @@ def test_update_card_condition_existing(populated_db):
 
     # Verify updates
     with Session(populated_db.engine) as session:
-        card = session.query(Card).filter(Card.card_number == card_number).first()
+        card = session.query(Card)\
+            .filter(Card.card_number == card_number)\
+            .first()
+
         assert card.collection_status.is_misprint is True
         assert card.collection_status.is_collected is True  # Preserved
         assert card.collection_status.acquisition == Acquisition.PULLED  # Preserved
@@ -271,18 +289,20 @@ def test_record_trade_success(populated_db):
     # Verify trade was recorded
     with Session(populated_db.engine) as session:
         # Check acquired card
-        acquired = session.query(Card).filter(
-            Card.card_number == acquired_number
-        ).first()
+        acquired = session.query(Card)\
+            .filter(Card.card_number == acquired_number)\
+            .first()
+
         assert acquired.collection_status.is_collected is True
         assert acquired.collection_status.acquisition == Acquisition.TRADED
         assert acquired.collection_status.date_acquired == trade_date
         assert traded_number in acquired.collection_status.notes
 
         # Check traded card
-        traded = session.query(Card).filter(
-            Card.card_number == traded_number
-        ).first()
+        traded = session.query(Card)\
+            .filter(Card.card_number == traded_number)\
+            .first()
+
         assert traded.collection_status.is_collected is False
         assert acquired_number in traded.collection_status.notes
 
@@ -310,7 +330,10 @@ def test_record_trade_invalid_cards(populated_db):
 
     # Verify no changes were made
     with Session(populated_db.engine) as session:
-        card = session.query(Card).filter(Card.card_number == valid_number).first()
+        card = session.query(Card)\
+            .filter(Card.card_number == valid_number)\
+            .first()
+
         # Original status should be unchanged
         if card.collection_status:
             assert "INVALID-001" not in card.collection_status.notes
@@ -330,12 +353,13 @@ def test_record_trade_promo_card(populated_db):
     """
     # Get a promo card and regular card
     with Session(populated_db.engine) as session:
-        promo = session.query(Card).filter(
-            Card.card_number.like("PR-%")
-        ).first()
-        regular = session.query(Card).filter(
-            Card.card_type == CardType.CHARACTER
-        ).first()
+        promo = session.query(Card)\
+            .filter(Card.card_number.like("PR-%"))\
+            .first()
+
+        regular = session.query(Card)\
+            .filter(Card.card_type == CardType.CHARACTER)\
+            .first()
 
         promo_number = promo.card_number
         regular_number = regular.card_number
@@ -346,8 +370,9 @@ def test_record_trade_promo_card(populated_db):
 
     # Verify promo status preserved
     with Session(populated_db.engine) as session:
-        promo = session.query(Card).filter(
-            Card.card_number == promo_number
-        ).first()
+        promo = session.query(Card)\
+            .filter(Card.card_number == promo_number)\
+            .first()
+
         assert promo.collection_status.is_promo is True
         assert promo.collection_status.is_holo is True  # Promos always holo
