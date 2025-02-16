@@ -1,0 +1,18 @@
+Found 2 promo cards
+
+Card PR-069:
+  Name: NSFW FREAM
+  Type: CardType.CHARACTER
+  Collection Status:
+    is_promo: False
+    is_holo: False
+    is_collected: True
+
+Card PR-002:
+  Name: Event Healer
+  Type: CardType.SUPPORT
+  Collection Status:
+    is_promo: False
+    is_holo: False
+    is_collected: True
+

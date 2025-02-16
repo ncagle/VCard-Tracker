@@ -1,0 +1,15 @@
+Total FREAM cards: 4
+FREAM cards in database:
+  106: FREAM (collected: True)
+  107: FREAM (collected: True)
+  108: FREAM (collected: True)
+  BT-001: FREAM (collected: True)
+
+Collected FREAM cards: 4
+Collected cards:
+  106: FREAM
+  107: FREAM
+  108: FREAM
+  BT-001: FREAM
+
+Complete sets found: ['FREAM']

@@ -1,0 +1,160 @@
+
+Before loading - Found 0 existing cards
+
+
+After loading - Found 15 cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+Before loading - Found 15 existing cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+
+After loading - Found 15 cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+Before loading - Found 15 existing cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+
+After loading - Found 15 cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+Before loading - Found 15 existing cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+
+After loading - Found 15 cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+Before loading - Found 15 existing cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+
+After loading - Found 15 cards
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  001: Healing Mage
+  002: Healing Mage
+  003: Healing Mage
+  001: Fire Guardian
+  002: Water Guardian
+  001: Fire Shield
+  002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery

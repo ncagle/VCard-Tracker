@@ -1,0 +1,44 @@
+Total cards in database: 15
+Card numbers in database:
+  106: FREAM
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  SP-001: Healing Mage
+  SP-002: Healing Mage
+  SP-003: Healing Mage
+  GD-001: Fire Guardian
+  GD-002: Water Guardian
+  SH-001: Fire Shield
+  SH-002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
+
+Total collected cards: 2
+Collected card numbers:
+  106: FREAM
+  SH-001: Fire Shield
+
+Card SH-001 details:
+  Found in database: Yes
+  Name: Fire Shield
+  Has collection status: True
+  Is collected: True
+
+Missing cards count: 13
+Missing card numbers:
+  107: FREAM
+  162: SPIKE
+  108: FREAM
+  BT-001: FREAM
+  SP-001: Healing Mage
+  SP-002: Healing Mage
+  SP-003: Healing Mage
+  GD-001: Fire Guardian
+  GD-002: Water Guardian
+  SH-002: Water Shield
+  MP-107: Misprint FREAM
+  998: Max Stats
+  999: Mystery
