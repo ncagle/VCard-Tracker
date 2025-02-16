@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-tests.test_database.py - VCard-Tracker
+tests.test_db_card_queries.py - VCard-Tracker
 Created by NCagle
 2025-02-03
       _
@@ -30,15 +30,15 @@ cards by attributes, cards in collection, and update collection status.
         ✅ Get cards in collection
         ✅ Update status of card in collection
         ✅ Error handling for non-existent cards
-    test_database.py::test_get_card_by_number                    11% █▎        
-    test_database.py::test_get_cards_by_type                     22% ██▎       
-    test_database.py::test_get_cards_by_element                  33% ███▍      
-    test_database.py::test_get_cards_by_illustrator              44% ████▌     
-    test_database.py::test_get_cards_by_character_name           56% █████▋    
-    test_database.py::test_get_character_variants                67% ██████▋   
-    test_database.py::test_get_cards_by_power_level              78% ███████▊  
-    test_database.py::test_get_collected_cards                   89% ████████▉ 
-    test_database.py::test_update_collection_status             100% ██████████
+    test_db_card_queries.py::test_get_card_by_number             11% █▎        
+    test_db_card_queries.py::test_get_cards_by_type              22% ██▎       
+    test_db_card_queries.py::test_get_cards_by_element           33% ███▍      
+    test_db_card_queries.py::test_get_cards_by_illustrator       44% ████▌     
+    test_db_card_queries.py::test_get_cards_by_character_name    56% █████▋    
+    test_db_card_queries.py::test_get_character_variants         67% ██████▋   
+    test_db_card_queries.py::test_get_cards_by_power_level       78% ███████▊  
+    test_db_card_queries.py::test_get_collected_cards            89% ████████▉ 
+    test_db_card_queries.py::test_update_collection_status      100% ██████████
 """
 import pytest
 from sqlalchemy.orm import Session
