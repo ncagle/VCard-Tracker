@@ -334,12 +334,6 @@ def test_get_recent_acquisitions(db_session: Session, populated_db: DatabaseMana
         - Respects the limit parameter
         - Only includes collected cards
     """
-    # Add cards with different acquisition dates
-    dates = [
-        dt.now() - timedelta(days=5),
-        dt.now() - timedelta(days=3),
-        dt.now() - timedelta(days=1)
-    ]
     # test_card_numbers = ["106", "SP-001", "GD-002"]  # Cards we'll test with
     # First clear any existing collection status
     with Session(populated_db.engine) as session:
@@ -347,35 +341,41 @@ def test_get_recent_acquisitions(db_session: Session, populated_db: DatabaseMana
         _ = session.query(CollectionStatus).delete()
         session.commit()
 
-    cards = [
-        ("CH-001A", dates[0]),
-        ("SP-001A", dates[1]),
-        ("GD-001", dates[2])
+    # Add cards with different acquisition dates
+    cards_to_collect = [
+        ("106", dt.now() - timedelta(days=5)),  # FREAM Level 8
+        ("SP-001", dt.now() - timedelta(days=3)),  # Healing Mage
+        ("GD-002", dt.now() - timedelta(days=1))   # Water Guardian
     ]
 
-    for card_number, date in cards:
+    for card_number, date in cards_to_collect:
+        # First create collection status
         _ = populated_db.update_collection_status(
             card_number,
             is_collected=True,
             acquisition=Acquisition.PULLED,
             notes=f"Test acquisition on {date}"
         )
-        # Update the acquisition date directly since it's usually auto-set
+
+        # Then update the acquisition date directly since it's usually auto-set
         with Session(populated_db.engine) as session:
-            card = session.query(populated_db.Card).filter_by(card_number=card_number).first()
-            card.collection_status.date_acquired = date
-            session.commit()
+            card = session.query(Card)\
+                .filter_by(card_number=card_number)\
+                .first()
+            if card and card.collection_status:
+                card.collection_status.date_acquired = date
+                session.commit()
 
     # Test with default limit
     recent = populated_db.get_recent_acquisitions()
     assert len(recent) == 3
-    assert recent[0].card_number == "GD-001"  # Most recent first
+    assert recent[0].card_number == "GD-002"  # Most recent first
 
     # Test with custom limit
     recent = populated_db.get_recent_acquisitions(limit=2)
     assert len(recent) == 2
-    assert recent[0].card_number == "GD-001"
-    assert recent[1].card_number == "SP-001A"
+    assert recent[0].card_number == "GD-002"
+    assert recent[1].card_number == "SP-001"
 
 
 @pytest.mark.database
