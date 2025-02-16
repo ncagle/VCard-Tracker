@@ -72,10 +72,6 @@ def test_get_collection_stats(db_session: Session, populated_db: DatabaseManager
         - Cards collected by type
         - Total holos and secret rares
     """
-    # First collect some cards
-    _ = populated_db.update_collection_status("CH-001A", True, is_holo=False)  # Regular
-    _ = populated_db.update_collection_status("CH-001B", True, is_holo=True)   # Holo
-    _ = populated_db.update_collection_status("SP-001C", True, is_holo=True)   # Secret rare
     # test_card_numbers = ["106", "107", "SP-003"]  # Cards we'll test with
     # First clear any existing collection status
     with Session(populated_db.engine) as session:
@@ -83,7 +79,17 @@ def test_get_collection_stats(db_session: Session, populated_db: DatabaseManager
         _ = session.query(CollectionStatus).delete()
         session.commit()
 
+    # Verify empty stats
+    empty_stats = populated_db.get_collection_stats()
+    assert empty_stats["total_collected"] == 0
+    assert empty_stats["total_cards"] > 0
 
+    # Then collect some test cards using known card numbers from sample data
+    _ = populated_db.update_collection_status("106", True, is_holo=False)  # Regular FREAM Level 8
+    _ = populated_db.update_collection_status("107", True, is_holo=True)   # Holo FREAM Level 9
+    _ = populated_db.update_collection_status("SP-003", True, is_holo=True)   # Healing Mage
+
+    # Get updated stats
     stats = populated_db.get_collection_stats()
 
     # Verify basic counts
@@ -168,29 +174,32 @@ def test_get_missing_cards(db_session: Session, populated_db: DatabaseManager):
         _ = session.query(CollectionStatus).delete()
         session.commit()
 
+    # Get total number of cards in database
+    with Session(populated_db.engine) as session:
+        total_cards = session.query(Card).count()
+
     # Initial check - all cards should be missing
     initial_missing = populated_db.get_missing_cards()
-    initial_count = len(initial_missing)
+    assert len(initial_missing) == total_cards
 
-    # Collect some cards
-    _ = populated_db.update_collection_status("CH-001A", True)
-    _ = populated_db.update_collection_status("SP-001A", True)
+    # Collect two cards
+    _ = populated_db.update_collection_status("106", True)  # FREAM Level 8
+    _ = populated_db.update_collection_status("SH-001", True)  # Fire Shield
 
     if EXPORT_DEBUG_INFO:
         _create_missing_cards_debug_before()
 
     # Get updated missing cards
     updated_missing = populated_db.get_missing_cards()
+    assert len(updated_missing) == total_cards - 2
 
-    # Verify counts
-    assert len(updated_missing) == initial_count - 2
     if EXPORT_DEBUG_INFO:
         _create_missing_cards_debug_after(updated_missing)
 
     # Verify collected cards aren't in missing list
     missing_numbers = [card.card_number for card in updated_missing]
-    assert "CH-001A" not in missing_numbers
-    assert "SP-001A" not in missing_numbers
+    assert "106" not in missing_numbers
+    assert "SH-001" not in missing_numbers
 
 
 @pytest.mark.database
