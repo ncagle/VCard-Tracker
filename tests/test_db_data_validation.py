@@ -271,7 +271,15 @@ def test_get_duplicate_entries_duplicate_numbers(populated_db):
     # Create a duplicate card
     with Session(populated_db.engine) as session:
         # Get an existing card to duplicate
-        original = session.scalar(select(Card))
+        # original = session.scalar(select(Card))
+        original = session.scalar(
+            select(Card)
+            .options(
+                joinedload(Card.character_details),
+                joinedload(Card.collection_status)
+            )
+        )
+        assert original is not None, "No cards found in database"
 
         # Create duplicate with same number
         duplicate = Card(
