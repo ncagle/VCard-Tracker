@@ -15,26 +15,36 @@ Tests for collection management database operations.
 This module contains tests for the DatabaseManager methods that manage
 bulk updates to collection status, notes, condition flags, trades.
 
-❌ Collection Management
-    - Update multiple cards at once
-        - Successful bulk updates with multiple cards
-        - Handling of invalid card numbers
-        - Transaction rollback on failure
-    - Add notes to card
-        - Adding notes to cards without existing notes
-        - Appending notes to existing notes
-        - Timestamp formatting
-        - Invalid card handling
-    - Update card condition flags
-        - Updating cards with/without existing status
-        - Preserving other collection attributes
-        - Invalid card handling
-    - Record card trades
-        - Successful trade recording
-        - Cross-referenced notes
-        - Status updates for both cards
-        - Handling invalid cards
-        - Special handling for promo cards
+✅ Collection Management
+    ✅ Update multiple cards at once
+        ✅ Successful bulk updates with multiple cards
+        ✅ Handling of invalid card numbers
+        ✅ Transaction rollback on failure
+    ✅ Add notes to card
+        ✅ Adding notes to cards without existing notes
+        ✅ Appending notes to existing notes
+        ✅ Timestamp formatting
+        ✅ Invalid card handling
+    ✅ Update card condition flags
+        ✅ Updating cards with/without existing status
+        ✅ Preserving other collection attributes
+        ✅ Invalid card handling
+    ✅ Record card trades
+        ✅ Successful trade recording
+        ✅ Cross-referenced notes
+        ✅ Status updates for both cards
+        ✅ Handling invalid cards
+        ✅ Special handling for promo cards
+    test_db_collection_management.py::test_bulk_update_collection_success           10% █
+    test_db_collection_management.py::test_bulk_update_collection_invalid_cards     20% ██        
+    test_db_collection_management.py::test_add_card_note_new                        30% ███       
+    test_db_collection_management.py::test_add_card_note_append                     40% ████      
+    test_db_collection_management.py::test_add_card_note_invalid_card               50% █████     
+    test_db_collection_management.py::test_update_card_condition_new                60% ██████    
+    test_db_collection_management.py::test_update_card_condition_existing           70% ███████   
+    test_db_collection_management.py::test_record_trade_success                     80% ████████  
+    test_db_collection_management.py::test_record_trade_invalid_cards               90% █████████ 
+    test_db_collection_management.py::test_record_trade_promo_card                 100% ██████████
 """
 from datetime import datetime as dt
 import pytest
