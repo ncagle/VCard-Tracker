@@ -206,6 +206,14 @@ def populated_db(db_manager: DatabaseManager, sample_cards: Dict[str, Any]) -> D
                 for card in existing_cards:
                     _ = f.write(f"  {card.card_number}: {card.name}\n")
 
+        # Clear ALL existing data first before loading cards
+        _ = session.query(CollectionStatus).delete()
+        _ = session.query(CharacterDetails).delete()
+        _ = session.query(SupportDetails).delete()
+        _ = session.query(ElementalDetails).delete()
+        _ = session.query(Card).delete()
+        session.commit()
+
         # Load character cards
         for variant_name, card_data in sample_cards["characters"].items():
             card = Card(
