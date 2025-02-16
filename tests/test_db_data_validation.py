@@ -318,14 +318,15 @@ def test_get_duplicate_entries_name_inconsistencies(populated_db):
     # Create character variants with inconsistent names
     with Session(populated_db.engine) as session:
         # Base character
+        card_number = "CH-666"  # Use unlikely number to avoid conflicts
         base_card = Card(
             name="Test Character",
             card_type=CardType.CHARACTER,
             talent="Test talent",
             edition="Test",
-            card_number="CH-TEST1",
+            card_number=card_number,
             illustrator="Test Artist",
-            image_path=f"{CardType.CHARACTER}/CH-TEST1.png"
+            image_path=f"{CardType.CHARACTER}/{card_number}.png"
         )
         base_card.character_details = CharacterDetails(
             power_level=8,
@@ -339,14 +340,15 @@ def test_get_duplicate_entries_name_inconsistencies(populated_db):
         session.add(base_card)
 
         # Variant with slightly different name
+        variant_number = "CH-669"
         variant = Card(
             name="Test Character ",  # Extra space
             card_type=CardType.CHARACTER,
             talent="Test talent",
             edition="Test",
-            card_number="CH-TEST2",
+            card_number=variant_number,
             illustrator="Test Artist",
-            image_path=f"{CardType.CHARACTER}/CH-TEST2.png"
+            image_path=f"{CardType.CHARACTER}/{variant_number}.png"
         )
         variant.character_details = CharacterDetails(
             power_level=9,
@@ -383,14 +385,15 @@ def test_get_duplicate_entries_element_mismatches(populated_db):
     # Create character variants with different elements
     with Session(populated_db.engine) as session:
         # First variant
+        card1_number = "CH-666"
         card1 = Card(
             name="Element Test",
             card_type=CardType.CHARACTER,
             talent="Test talent",
             edition="Test",
-            card_number="CH-ELEM1",
+            card_number=card1_number,
             illustrator="Test Artist",
-            image_path=f"{CardType.CHARACTER}/CH-ELEM1.png"
+            image_path=f"{CardType.CHARACTER}/{card1_number}.png"
         )
         card1.character_details = CharacterDetails(
             power_level=8,
@@ -404,14 +407,15 @@ def test_get_duplicate_entries_element_mismatches(populated_db):
         session.add(card1)
 
         # Second variant with different element
+        card2_number = "CH-667"
         card2 = Card(
             name="Element Test",
             card_type=CardType.CHARACTER,
             talent="Test talent",
             edition="Test",
-            card_number="CH-ELEM2",
+            card_number=card2_number,
             illustrator="Test Artist",
-            image_path=f"{CardType.CHARACTER}/CH-ELEM2.png"
+            image_path=f"{CardType.CHARACTER}/{card2_number}.png"
         )
         card2.character_details = CharacterDetails(
             power_level=9,
