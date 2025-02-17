@@ -984,6 +984,7 @@ class DatabaseManager:
             - CardType.SHIELD:     SH-000
             - is_box_topper:       BT-000
             - is_promo:            PR-000
+            - is_misprint:         MP-000
 
         Notes:
             Example fix for `validate_card_number` to match test expectations.
@@ -1002,7 +1003,8 @@ class DatabaseManager:
             "guardian": r"^GD-\d{3}$",     # GD-001
             "shield": r"^SH-\d{3}$",       # SH-001
             "box_topper": r"^BT-\d{3}$",   # BT-001
-            "promo": r"^PR-\d{3}$"         # PR-001
+            "promo": r"^PR-\d{3}$",        # PR-001
+            "misprint": r"^MP-\d{3}$"      # MP-001
         }
 
         # Check format

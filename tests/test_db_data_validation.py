@@ -55,12 +55,13 @@ def test_validate_card_number_valid_formats(populated_db):
             "-":         Matches a literal dash character.
             "\d{3}":     Special sequence for any digit (0-9). Must occur exactly three times.
             "$":         Asserts the end of the string.
-        - CardType.CHARACTER: CH-000
-        - CardType.SUPPORT: SP-000
-        - CardType.GUARDIAN: GD-000
-        - CardType.SHIELD: SH-000
-        - is_box_topper: BT-000
-        - is_promo: PR-000
+        - CardType.CHARACTER:  CH-000
+        - CardType.SUPPORT:    SP-000
+        - CardType.GUARDIAN:   GD-000
+        - CardType.SHIELD:     SH-000
+        - is_box_topper:       BT-000
+        - is_promo:            PR-000
+        - is_misprint:         MP-000
     """
     # Test valid formats for each card type
     valid_numbers = [
@@ -69,7 +70,8 @@ def test_validate_card_number_valid_formats(populated_db):
         "GD-001",  # Guardian
         "SH-001",  # Shield
         "BT-001",  # Box Topper
-        "PR-001"   # Promo
+        "PR-001",   # Promo
+        "MP-001"   # Misprint
     ]
 
     with Session(populated_db.engine) as session:
@@ -125,12 +127,13 @@ def test_validate_card_number_invalid_formats(populated_db):
             "-":         Matches a literal dash character.
             "\d{3}":     Special sequence for any digit (0-9). Must occur exactly three times.
             "$":         Asserts the end of the string.
-        - CardType.CHARACTER: CH-000
-        - CardType.SUPPORT: SP-000
-        - CardType.GUARDIAN: GD-000
-        - CardType.SHIELD: SH-000
-        - is_box_topper: BT-000
-        - is_promo: PR-000
+        - CardType.CHARACTER:  CH-000
+        - CardType.SUPPORT:    SP-000
+        - CardType.GUARDIAN:   GD-000
+        - CardType.SHIELD:     SH-000
+        - is_box_topper:       BT-000
+        - is_promo:            PR-000
+        - is_misprint:         MP-000
 
     Tests invalid formats:
         - Missing prefix
@@ -142,7 +145,6 @@ def test_validate_card_number_invalid_formats(populated_db):
     invalid_numbers = [
         "001",         # Missing prefix
         "XX-001",      # Invalid prefix
-        "MP-001",      # Invalid prefix (misprints use original card number)
         "CH-A01",      # Letters in number portion
         "CH001",       # Missing hyphen
         "CH-0001",     # Too many digits
