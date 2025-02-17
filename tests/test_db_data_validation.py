@@ -22,6 +22,7 @@ card number format, check for duplicate entries, and verify data integrity.
     - Verify data and database integrity
 
 """
+import os
 from typing import Dict, List
 from datetime import datetime as dt
 
@@ -456,6 +457,14 @@ def test_verify_database_integrity_clean_db(populated_db):
         Verifies that a properly structured database reports no issues.
     """
     issues = populated_db.verify_database_integrity()
+    os.makedirs("tests/debug", exist_ok=True)
+    with open("tests/debug/clean_db_debug.txt", "w", encoding="utf-8") as f:
+        _ = f.write("Issues found:\n\n")
+        for category, issue_list in issues.items():
+            if issue_list:
+                _ = f.write(f"\n{category}:\n")
+                for issue in issue_list:
+                    _ = f.write(f"  {issue}\n")
 
     # Verify structure
     assert isinstance(issues, dict)
@@ -772,6 +781,16 @@ def test_verify_database_integrity_element_counts(populated_db):
 
         # Check integrity
         issues = populated_db.verify_database_integrity()
+
+        os.makedirs("tests/debug", exist_ok=True)
+        with open("tests/debug/element_counts_debug.txt", "w", encoding="utf-8") as f:
+            _ = f.write("Issues found:\n\n")
+            for category, issue_list in issues.items():
+                if issue_list:
+                    _ = f.write(f"\n{category}:\n")
+                    for issue in issue_list:
+                        _ = f.write(f"  {issue}\n")
+
         assert len(issues["invalid_elements"]) > 0
 
         # Verify element count issue
@@ -825,6 +844,15 @@ def test_verify_database_integrity_multiple_issues(populated_db):
 
         # Card should appear in multiple issue categories
         card_number = "CH-MULTI"
+
+        os.makedirs("tests/debug", exist_ok=True)
+        with open("tests/debug/integrity_multi_issues_debug.txt", "w", encoding="utf-8") as f:
+            _ = f.write("Issues found:\n\n")
+            for category, issue_list in issues.items():
+                if issue_list:
+                    _ = f.write(f"\n{category}:\n")
+                    for issue in issue_list:
+                        _ = f.write(f"  {issue}\n")
 
         # Check for element issues
         assert any(
