@@ -1,0 +1,13 @@
+Issues found:
+
+
+invalid_elements:
+  {'id': 5, 'number': 'BT-001', 'name': 'FREAM', 'missing_elements': {'main': True, 'strength': True, 'weakness': True}}
+  {'element': 'FIRE', 'count': 3, 'error': 'Each element should have exactly one guardian and one shield card'}
+  {'element': 'GRASS', 'count': 0, 'error': 'Each element should have exactly one guardian and one shield card'}
+  {'element': 'ELECTRIC', 'count': 0, 'error': 'Each element should have exactly one guardian and one shield card'}
+  {'element': 'PLATINUM', 'count': 0, 'error': 'Each element should have exactly one guardian and one shield card'}
+
+constraint_violations:
+  {'id': 3, 'number': 'CH-162', 'name': 'SPIKE', 'issues': ['Invalid power level: 1']}
+  {'id': 5, 'number': 'BT-001', 'name': 'FREAM', 'issues': ['Invalid power level: None']}

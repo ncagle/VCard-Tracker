@@ -1,0 +1,17 @@
+Issues found:
+
+
+invalid_elements:
+  {'id': 5, 'number': 'BT-001', 'name': 'FREAM', 'missing_elements': {'main': True, 'strength': True, 'weakness': True}}
+  {'id': 18, 'number': 'CH-MULTI', 'name': 'Multiple Issues', 'missing_elements': {'main': True, 'strength': True, 'weakness': True}}
+  {'element': 'GRASS', 'count': 0, 'error': 'Each element should have exactly one guardian and one shield card'}
+  {'element': 'ELECTRIC', 'count': 0, 'error': 'Each element should have exactly one guardian and one shield card'}
+  {'element': 'PLATINUM', 'count': 0, 'error': 'Each element should have exactly one guardian and one shield card'}
+
+collection_issues:
+  {'id': 3, 'card_id': 18, 'issues': ['Missing acquisition date', 'Missing acquisition method']}
+
+constraint_violations:
+  {'id': 3, 'number': 'CH-162', 'name': 'SPIKE', 'issues': ['Invalid power level: 1']}
+  {'id': 5, 'number': 'BT-001', 'name': 'FREAM', 'issues': ['Invalid power level: None']}
+  {'id': 18, 'number': 'CH-MULTI', 'name': 'Multiple Issues', 'issues': ['Level 10 card must be holo']}
